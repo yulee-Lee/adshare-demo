@@ -38,19 +38,19 @@ a{color:var(--cobalt);text-decoration:none}
 #login{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;padding:24px;background:var(--bg)}
 .lcard{position:relative;z-index:2;width:960px;max-width:96vw;height:600px;max-height:92vh;display:flex;border-radius:28px;overflow:hidden;box-shadow:var(--sh-lg);background:#fff;animation:rise .7s cubic-bezier(.2,.85,.25,1)}
 @keyframes rise{from{opacity:0;transform:translateY(28px) scale(.98)}to{opacity:1;transform:none}}
-.lcard .left{flex:1.12;position:relative;padding:56px 50px;color:#fff;overflow:hidden;background:linear-gradient(145deg,#2540e6 0%,var(--cobalt) 42%,var(--coral) 122%)}
+.lcard .left{flex:1.12;position:relative;padding:52px 50px;color:#fff;overflow:hidden;display:flex;flex-direction:column;background:linear-gradient(145deg,#2540e6 0%,var(--cobalt) 42%,var(--coral) 122%)}
 #loginCanvas{position:absolute;inset:0;opacity:.55}
 .lcard .left>*{position:relative;z-index:2}
-.lcard .brand{display:flex;align-items:center;gap:13px;margin-bottom:46px}
+.lcard .brand{display:flex;align-items:center;gap:13px;margin-bottom:40px}
 .lcard .logo{width:48px;height:48px}
 .lcard .bt{font-size:11px;letter-spacing:5px;opacity:.85}
 .lcard .bt b{display:block;font-size:23px;letter-spacing:7px;font-weight:800;margin-top:2px}
 .lcard h1{font-size:44px;line-height:1.16;font-weight:800;letter-spacing:-1.2px;margin-bottom:18px;text-wrap:balance}
 .lcard .tag{font-size:15px;max-width:380px;line-height:1.75;opacity:.94}
-.lstats{display:flex;gap:30px;margin-top:46px}
-.lstats .n{font-size:27px;font-weight:800;letter-spacing:-1px}
-.lstats .l{font-size:11px;opacity:.8;letter-spacing:1px;margin-top:4px}
-.lchip{position:absolute;bottom:40px;left:50px;z-index:2;display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);backdrop-filter:blur(6px);padding:7px 14px;border-radius:30px;font-size:12px}
+.lstats{display:flex;gap:30px;margin-top:36px}
+.lstats .n{font-size:26px;font-weight:800;letter-spacing:-1px}
+.lstats .l{font-size:11px;opacity:.8;letter-spacing:1px;margin-top:5px}
+.lchip{margin-top:auto;align-self:flex-start;display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);backdrop-filter:blur(6px);padding:7px 14px;border-radius:30px;font-size:12px}
 .lcard .right{width:380px;padding:56px 46px;display:flex;flex-direction:column;justify-content:center}
 .lcard .right h2{font-size:24px;font-weight:800;letter-spacing:-.5px;margin-bottom:6px}
 .lcard .right .sub{color:var(--ink-3);font-size:13px;margin-bottom:26px}
