@@ -132,14 +132,16 @@ a{color:var(--cobalt);text-decoration:none}
 .ph .more{font-size:12px;color:var(--ink-3);cursor:pointer;font-weight:600;transition:.2s}.ph .more:hover{color:var(--cobalt)}
 .pb{padding:24px}
 
-.stat{padding:24px}
+.stat{padding:22px 24px;display:flex;flex-direction:column}
 .stat:hover{transform:translateY(-4px);box-shadow:var(--sh-lg)}
-.stat .st-top{display:flex;justify-content:space-between;align-items:flex-start}
-.stat .lbl{font-size:11px;color:var(--ink-3);letter-spacing:1px;text-transform:uppercase;font-weight:700}
-.stat .ic{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:19px}
-.stat .val{font-size:32px;font-weight:800;margin:16px 0 4px;letter-spacing:-1.5px;font-family:var(--mono)}
-.stat .val small{font-size:14px;color:var(--ink-3);margin-right:4px;font-family:var(--sans);font-weight:600}
-.stat .dt{font-size:12px;color:var(--ink-3);display:flex;align-items:center;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--stroke)}
+.stat .st-top{display:flex;justify-content:space-between;align-items:center}
+.stat .lbl{font-size:14px;color:var(--ink-2);font-weight:600;letter-spacing:0}
+.stat .sinfo{color:var(--ink-3);display:flex;transition:color .2s;cursor:help}
+.stat .sinfo:hover{color:var(--cobalt)}
+.stat .val{font-size:31px;font-weight:800;margin:18px 0 0;letter-spacing:-1.5px;font-family:var(--mono);line-height:1.1}
+.stat .val small{font-size:14px;color:var(--ink-3);margin-right:5px;font-family:var(--sans);font-weight:600}
+.stat .mini{margin:14px 0 2px}.stat .mini svg{width:100%;height:auto}
+.stat .dt{font-size:12px;color:var(--ink-3);display:flex;align-items:center;gap:8px;margin-top:auto;padding-top:14px;border-top:1px solid var(--stroke)}
 .stat .spark{margin-top:8px}
 .up{color:var(--teal);font-weight:800}.down{color:var(--rose);font-weight:800}
 
@@ -434,8 +436,9 @@ function render(){
   c.innerHTML=map[active]();animateIn(c);
 }
 function ph(title,sub,iso,right){return `<div class="pagehd"><div><h1>${title}</h1><p>${sub}</p>${iso?`<div class="iso"><svg width="13" height="13" viewBox="0 0 16 16" fill="none"><rect x="3" y="7" width="10" height="7" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M5.5 7V5a2.5 2.5 0 015 0v2" stroke="currentColor" stroke-width="1.4"/></svg>${t('isoNote')}</div>`:''}</div>${right||''}</div>`;}
-function spark(color){const pts=[6,9,7,11,10,13,12,15];const W=94,H=28,mx=Math.max(...pts),mn=Math.min(...pts);let d='';pts.forEach((v,i)=>{const x=i*(W/(pts.length-1));const y=H-2-((v-mn)/(mx-mn))*(H-6);d+=(i?'L':'M')+x.toFixed(1)+' '+y.toFixed(1)+' ';});return `<svg class="spark" width="${W}" height="${H}"><path d="${d}" fill="none" stroke="${color}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;}
-function stCard(lbl,val,unit,dt,ic,col,sk){return `<div class="panel stat"><div class="st-top"><div><div class="lbl">${lbl}</div><div class="val">${unit?`<small>${unit}</small>`:''}<span data-cu="${val}">0</span></div>${sk?spark(col):''}</div><div class="ic" style="background:${col}18;color:${col}">${ic}</div></div><div class="dt">${dt}</div></div>`;}
+function spark(color){const pts=[6,9,7,11,10,13,12,15,13,16];const W=180,H=40,mx=Math.max(...pts),mn=Math.min(...pts);let d='',area='';pts.forEach((v,i)=>{const x=i*(W/(pts.length-1));const y=H-3-((v-mn)/(mx-mn))*(H-9);d+=(i?'L':'M')+x.toFixed(1)+' '+y.toFixed(1)+' ';});const gid='sg'+Math.round(Math.abs(pts.reduce((a,b)=>a+b,0))*(color.charCodeAt(1)||1));area=d+`L${W} ${H} L0 ${H} Z`;return `<svg class="spark" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${color}" stop-opacity=".22"/><stop offset="1" stop-color="${color}" stop-opacity="0"/></linearGradient></defs><path d="${area}" fill="url(#${gid})"/><path d="${d}" fill="none" stroke="${color}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;}
+function sinfo(lbl){return `<span class="sinfo" title="${lbl}"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.6" stroke="currentColor" stroke-width="1.2"/><path d="M8 7.1v3.5M8 5.1h.02" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>`;}
+function stCard(lbl,val,unit,dt,ic,col,sk,suf){return `<div class="panel stat"><div class="st-top"><div class="lbl">${lbl}</div>${sinfo(lbl)}</div><div class="val">${unit?`<small>${unit}</small>`:''}<span data-cu="${val}">0</span>${suf?`<span style="font-size:20px;font-weight:800;margin-left:1px">${suf}</span>`:''}</div>${sk?`<div class="mini">${spark(col)}</div>`:''}<div class="dt">${dt}</div></div>`;}
 
 function pageOver(){
   const iso=role==='client';
@@ -446,7 +449,7 @@ function pageOver(){
     ${stCard(t('s_rev'),1284500,'NT$',`<span class="up">▲ 12.4%</span> ${t('vsLast')}`,'◈','#3b5bff',1)}
     ${stCard(t('s_share'),899150,'NT$',`${t('thisRate')}`,'◆','#ff5a36',1)}
     ${stCard(t('s_pending'),1742300,'NT$',`${t('acc3')}`,'◷','#12b886',1)}
-    ${stCard(t('s_rate'),70,'','%　'+t('effect'),'%','#7c5cff',0)}
+    ${stCard(t('s_rate'),70,'',t('effect'),'%','#7c5cff',0,'%')}
   </div>
   <div class="grid g2" style="margin-bottom:20px">
     <div class="panel"><div class="ph"><h3>${t('ch_trend')}</h3><div class="legend"><span><i style="background:#3b5bff"></i>${t('lg_rev')}</span><span><i style="background:#ff5a36"></i>${t('lg_share')}</span></div></div><div class="pb">${lineChart()}</div></div>
