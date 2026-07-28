@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ADSHARE · 廣告分潤智控台</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#eef1f8; --bg2:#f6f8fc;
@@ -14,8 +17,8 @@
   --amber:#f59e0b; --teal:#12b886; --violet:#7c5cff; --rose:#f43f5e;
   --ink:#141a33; --ink-2:#5a6382; --ink-3:#98a0bb;
   --radius:18px; --radius-sm:12px;
-  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Microsoft JhengHei","Noto Sans TC",system-ui,sans-serif;
-  --mono:ui-monospace,"SF Mono","Cascadia Code","JetBrains Mono",Consolas,monospace;
+  --sans:"Noto Sans TC","PingFang TC","Microsoft JhengHei",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+  --mono:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
   --sh:0 1px 2px rgba(20,26,51,.05),0 8px 24px -12px rgba(59,91,255,.16);
   --sh-lg:0 2px 6px rgba(20,26,51,.06),0 20px 44px -18px rgba(59,91,255,.24);
 }
@@ -458,8 +461,8 @@ function lineChart(){
   let rev='',shr='';trend.forEach((v,i)=>rev+=(i?'L':'M')+x(i).toFixed(1)+' '+y(v).toFixed(1)+' ');
   const sh=trend.map(v=>Math.round(v*0.7));sh.forEach((v,i)=>shr+=(i?'L':'M')+x(i).toFixed(1)+' '+y(v).toFixed(1)+' ');
   const area=rev+`L${x(11)} ${H-26} L${x(0)} ${H-26} Z`;
-  let grid='';[0,375,750,1125,1500].forEach(g=>{const py=y(g);grid+=`<line x1="${pad}" y1="${py}" x2="${W-12}" y2="${py}" stroke="#eef1f8"/><text x="${pad-8}" y="${py+3}" text-anchor="end" font-size="10" fill="#98a0bb" font-family="monospace">${g}k</text>`;});
-  let xl='';months.forEach((m,i)=>xl+=`<text x="${x(i)}" y="${H-8}" text-anchor="middle" font-size="10" fill="#98a0bb" font-family="monospace">${m}</text>`);
+  let grid='';[0,375,750,1125,1500].forEach(g=>{const py=y(g);grid+=`<line x1="${pad}" y1="${py}" x2="${W-12}" y2="${py}" stroke="#eef1f8"/><text x="${pad-8}" y="${py+3}" text-anchor="end" font-size="10" fill="#98a0bb" font-family="'Noto Sans TC',sans-serif">${g}k</text>`;});
+  let xl='';months.forEach((m,i)=>xl+=`<text x="${x(i)}" y="${H-8}" text-anchor="middle" font-size="10" fill="#98a0bb" font-family="'Noto Sans TC',sans-serif">${m}</text>`);
   return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;overflow:visible"><defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3b5bff" stop-opacity=".22"/><stop offset="1" stop-color="#3b5bff" stop-opacity="0"/></linearGradient></defs>
   ${grid}${xl}<path d="${area}" fill="url(#ga)" class="area"/><path d="${shr}" fill="none" stroke="#ff5a36" stroke-width="2.4" class="draw" stroke-linejoin="round"/><path d="${rev}" fill="none" stroke="#3b5bff" stroke-width="3" class="draw" stroke-linejoin="round"/><circle cx="${x(11)}" cy="${y(trend[11])}" r="5.5" fill="#3b5bff"/><circle cx="${x(11)}" cy="${y(trend[11])}" r="5.5" fill="none" stroke="#3b5bff" class="ping"/></svg>`;
 }
@@ -469,7 +472,7 @@ function donut(){
    const p=(ang,rad)=>[cx+rad*Math.cos(ang),cy+rad*Math.sin(ang)];const[x0,y0]=p(a0,R),[x1,y1]=p(a1,R),[xi1,yi1]=p(a1,r),[xi0,yi0]=p(a0,r);
    seg+=`<path d="M${x0} ${y0} A${R} ${R} 0 ${lg} 1 ${x1} ${y1} L${xi1} ${yi1} A${r} ${r} 0 ${lg} 0 ${xi0} ${yi0} Z" fill="${s.c}" class="don" style="--i:${idx};transform-origin:${cx}px ${cy}px"/>`;});
   let leg='';sources.forEach(s=>leg+=`<div style="display:flex;justify-content:space-between;padding:9px 0;font-size:13px;border-bottom:1px solid var(--stroke)"><span style="display:flex;align-items:center;gap:9px;color:var(--ink-2);font-weight:600"><i style="width:10px;height:10px;border-radius:3px;background:${s.c};display:inline-block"></i>${s.n}</span><b class="mono" style="color:var(--ink)">${(s.v/total*100).toFixed(0)}%</b></div>`);
-  return `<div style="display:flex;gap:18px;align-items:center"><svg width="192" height="192" viewBox="0 0 192 192" style="flex-shrink:0">${seg}<text x="92" y="90" text-anchor="middle" font-size="11" fill="#98a0bb" font-family="monospace">NT$</text><text x="92" y="112" text-anchor="middle" font-size="20" font-weight="800" fill="#141a33" font-family="monospace">1.28M</text></svg><div style="flex:1">${leg}</div></div>`;
+  return `<div style="display:flex;gap:18px;align-items:center"><svg width="192" height="192" viewBox="0 0 192 192" style="flex-shrink:0">${seg}<text x="92" y="90" text-anchor="middle" font-size="11" fill="#98a0bb" font-family="'Noto Sans TC',sans-serif">NT$</text><text x="92" y="112" text-anchor="middle" font-size="20" font-weight="800" fill="#141a33" font-family="'Noto Sans TC',sans-serif">1.28M</text></svg><div style="flex:1">${leg}</div></div>`;
 }
 function stTag(st){const m={paid:['g',t('st_paid')],wait:['w',t('st_wait')],calc:['c',t('st_calc')],fail:['r',t('st_fail')],ok:['g',t('st_ok')]};const[c,l]=m[st];return `<span class="tag ${c}"><span class="dotm"></span>${l}</span>`;}
 function settleTable(rows,showNo){return `<div class="tblwrap"><table><thead><tr>${showNo?`<th>${t('col_no')}</th>`:''}<th>${t('col_period')}</th><th class="num">${t('col_rev')}</th><th class="num">${t('col_ratio')}</th><th class="num">${t('col_share')}</th><th>${t('col_status')}</th><th>${t('col_pay')}</th><th>${t('col_act')}</th></tr></thead><tbody>
