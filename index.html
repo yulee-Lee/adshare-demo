@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ADSHARE · 廣告分潤智控台</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#070b16; --bg2:#0a1120;
@@ -13,8 +16,8 @@
   --green:#34d399; --rose:#fb7185; --violet:#a78bfa;
   --text:#eaf0ff; --text-2:#9aa8cc; --text-3:#5f6d92;
   --radius:16px; --radius-sm:11px;
-  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Microsoft JhengHei","Noto Sans TC",system-ui,sans-serif;
-  --mono:ui-monospace,"SF Mono","Cascadia Code","JetBrains Mono",Consolas,monospace;
+  --sans:"Noto Sans TC","PingFang TC","Microsoft JhengHei",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+  --mono:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
   --glow-cyan:0 0 0 1px rgba(34,211,238,.35),0 8px 30px -8px rgba(34,211,238,.45);
   --glow-gold:0 0 0 1px rgba(251,191,36,.35),0 8px 30px -8px rgba(251,191,36,.4);
 }
@@ -227,6 +230,30 @@ td.num,th.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabu
 .formg input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(34,211,238,.14)}
 .mini-note{font-size:12px;color:var(--gold);background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.28);border-radius:10px;padding:11px 14px;margin-top:6px}
 
+/* ===== 2026 hover & scroll states ===== */
+#scrollbar{position:fixed;top:0;left:0;height:3px;z-index:120;width:0;background:linear-gradient(90deg,#22d3ee,var(--violet),#fbbf24);box-shadow:0 0 10px rgba(34,211,238,.5);transition:width .1s linear}
+.reveal{opacity:0;transform:translateY(22px)}
+.reveal.in{opacity:1;transform:none;transition:opacity .6s cubic-bezier(.2,.8,.2,1),transform .6s cubic-bezier(.2,.8,.2,1)}
+.panel:hover{border-color:rgba(34,211,238,.32);box-shadow:0 24px 60px -24px rgba(34,211,238,.45)}
+.stat{will-change:transform;transform-style:preserve-3d}
+.stat::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .35s;
+  background:radial-gradient(240px circle at var(--mx,50%) var(--my,50%),rgba(34,211,238,.14),transparent 62%)}
+.stat:hover::after{opacity:1}
+.stat .ic{transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+.stat:hover .ic{transform:translateZ(30px) scale(1.08) rotate(-6deg)}
+.stat .val,.stat .lbl{transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+.stat:hover .val{transform:translateZ(24px)}.stat:hover .lbl{transform:translateZ(14px)}
+.mi svg{transition:transform .24s cubic-bezier(.2,.8,.2,1)}
+.mi:hover svg{transform:scale(1.15) rotate(-4deg)}
+.btn:active{transform:translateY(0) scale(.97)!important}
+tbody tr{position:relative}
+tbody tr td:first-child{box-shadow:inset 3px 0 0 transparent;transition:box-shadow .2s}
+tbody tr:hover td:first-child{box-shadow:inset 3px 0 0 #22d3ee}
+.tag{transition:transform .2s}.tag:hover{transform:translateY(-1px)}
+.upzone .ui{transition:transform .4s cubic-bezier(.2,.8,.2,1)}
+.upzone:hover .ui{transform:translateY(-6px) scale(1.06)}
+.hicon:hover,.who:hover,.seg button.on{transition:.24s cubic-bezier(.2,.8,.2,1)}
+@media(hover:none){.stat:hover .ic,.stat:hover .val,.stat:hover .lbl{transform:none}}
 @media(max-width:920px){
   .sider{width:70px;padding:16px 10px}.sbrand b,.sbrand small,.mi span,.grp,.sside-glow{display:none}
   .mi{justify-content:center;padding:0}.sbrand{justify-content:center}
@@ -237,6 +264,7 @@ td.num,th.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabu
 </style>
 </head>
 <body>
+<div id="scrollbar"></div>
 <canvas id="aurora"></canvas>
 <div id="grain"></div>
 
@@ -452,8 +480,8 @@ function lineChart(){
   let rev='',shr='';trend.forEach((v,i)=>rev+=(i?'L':'M')+x(i).toFixed(1)+' '+y(v).toFixed(1)+' ');
   const sh=trend.map(v=>Math.round(v*0.7));sh.forEach((v,i)=>shr+=(i?'L':'M')+x(i).toFixed(1)+' '+y(v).toFixed(1)+' ');
   const area=rev+`L${x(11)} ${H-26} L${x(0)} ${H-26} Z`;
-  let grid='';[0,375,750,1125,1500].forEach(g=>{const py=y(g);grid+=`<line x1="${pad}" y1="${py}" x2="${W-12}" y2="${py}" stroke="rgba(255,255,255,.06)"/><text x="${pad-8}" y="${py+3}" text-anchor="end" font-size="10" fill="#5f6d92" font-family="monospace">${g}k</text>`;});
-  let xl='';months.forEach((m,i)=>xl+=`<text x="${x(i)}" y="${H-8}" text-anchor="middle" font-size="10" fill="#5f6d92" font-family="monospace">${m}</text>`);
+  let grid='';[0,375,750,1125,1500].forEach(g=>{const py=y(g);grid+=`<line x1="${pad}" y1="${py}" x2="${W-12}" y2="${py}" stroke="rgba(255,255,255,.06)"/><text x="${pad-8}" y="${py+3}" text-anchor="end" font-size="10" fill="#5f6d92" font-family="'Noto Sans TC',sans-serif">${g}k</text>`;});
+  let xl='';months.forEach((m,i)=>xl+=`<text x="${x(i)}" y="${H-8}" text-anchor="middle" font-size="10" fill="#5f6d92" font-family="'Noto Sans TC',sans-serif">${m}</text>`);
   return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;overflow:visible"><defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#22d3ee" stop-opacity=".32"/><stop offset="1" stop-color="#22d3ee" stop-opacity="0"/></linearGradient><filter id="glow"><feGaussianBlur stdDeviation="3.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
   ${grid}${xl}<path d="${area}" fill="url(#ga)" class="area"/><path d="${shr}" fill="none" stroke="#fbbf24" stroke-width="2.2" class="draw" stroke-linejoin="round" opacity=".9"/><path d="${rev}" fill="none" stroke="#22d3ee" stroke-width="2.8" class="draw" stroke-linejoin="round" filter="url(#glow)"/><circle cx="${x(11)}" cy="${y(trend[11])}" r="5" fill="#22d3ee" class="endpt"/><circle cx="${x(11)}" cy="${y(trend[11])}" r="5" fill="none" stroke="#22d3ee" class="ping"/></svg>`;
 }
@@ -463,7 +491,7 @@ function donut(){
    const p=(ang,rad)=>[cx+rad*Math.cos(ang),cy+rad*Math.sin(ang)];const[x0,y0]=p(a0,R),[x1,y1]=p(a1,R),[xi1,yi1]=p(a1,r),[xi0,yi0]=p(a0,r);
    seg+=`<path d="M${x0} ${y0} A${R} ${R} 0 ${lg} 1 ${x1} ${y1} L${xi1} ${yi1} A${r} ${r} 0 ${lg} 0 ${xi0} ${yi0} Z" fill="${s.c}" class="don" style="--i:${idx};transform-origin:${cx}px ${cy}px"/>`;});
   let leg='';sources.forEach(s=>leg+=`<div style="display:flex;justify-content:space-between;padding:8px 0;font-size:13px;border-bottom:1px solid rgba(255,255,255,.05)"><span style="display:flex;align-items:center;gap:9px;color:var(--text-2)"><i style="width:10px;height:10px;border-radius:3px;background:${s.c};display:inline-block;box-shadow:0 0 8px ${s.c}"></i>${s.n}</span><b class="mono" style="color:#fff">${(s.v/total*100).toFixed(0)}%</b></div>`);
-  return `<div style="display:flex;gap:18px;align-items:center"><svg width="192" height="192" viewBox="0 0 192 192" style="flex-shrink:0">${seg}<text x="92" y="90" text-anchor="middle" font-size="11" fill="#5f6d92" font-family="monospace">NT$</text><text x="92" y="112" text-anchor="middle" font-size="19" font-weight="800" fill="#fff" font-family="monospace">1.28M</text></svg><div style="flex:1">${leg}</div></div>`;
+  return `<div style="display:flex;gap:18px;align-items:center"><svg width="192" height="192" viewBox="0 0 192 192" style="flex-shrink:0">${seg}<text x="92" y="90" text-anchor="middle" font-size="11" fill="#5f6d92" font-family="'Noto Sans TC',sans-serif">NT$</text><text x="92" y="112" text-anchor="middle" font-size="19" font-weight="800" fill="#fff" font-family="'Noto Sans TC',sans-serif">1.28M</text></svg><div style="flex:1">${leg}</div></div>`;
 }
 function stTag(st){const m={paid:['g',t('st_paid')],wait:['w',t('st_wait')],calc:['c',t('st_calc')],fail:['r',t('st_fail')],ok:['g',t('st_ok')]};const[c,l]=m[st];return `<span class="tag ${c}"><span class="dotm"></span>${l}</span>`;}
 function settleTable(rows,showNo){return `<div class="tblwrap"><table><thead><tr>${showNo?`<th>${t('col_no')}</th>`:''}<th>${t('col_period')}</th><th class="num">${t('col_rev')}</th><th class="num">${t('col_ratio')}</th><th class="num">${t('col_share')}</th><th>${t('col_status')}</th><th>${t('col_pay')}</th><th>${t('col_act')}</th></tr></thead><tbody>
@@ -536,9 +564,27 @@ function applyLoginLang(){const z=lang==='zh',g=id=>document.getElementById(id);
 
 /* ===== animations ===== */
 const RM=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+let _io;
 function animateIn(scope){
   runCounters(scope);
-  // chart draw
+  // 2026 scroll-reveal: stagger panels into view
+  const items=scope.querySelectorAll('.panel, .ticker');
+  if(_io)_io.disconnect();
+  if(RM){items.forEach(el=>el.classList.add('in'));}
+  else{
+    items.forEach(el=>el.classList.add('reveal'));
+    _io=new IntersectionObserver((es)=>es.forEach(e=>{if(e.isIntersecting){const el=e.target;const idx=[...items].indexOf(el);el.style.transitionDelay=Math.min(idx*60,360)+'ms';el.classList.add('in');_io.unobserve(el);}}),{threshold:.12,rootMargin:'0px 0px -40px 0px'});
+    items.forEach(el=>_io.observe(el));
+    requestAnimationFrame(()=>items.forEach(el=>{const r=el.getBoundingClientRect();if(r.top<innerHeight)el.classList.add('in');}));
+  }
+  // cursor spotlight + 3D tilt on stat cards
+  scope.querySelectorAll('.stat').forEach(card=>{
+    card.addEventListener('pointermove',e=>{const r=card.getBoundingClientRect();const px=(e.clientX-r.left)/r.width,py=(e.clientY-r.top)/r.height;
+      card.style.setProperty('--mx',(px*100)+'%');card.style.setProperty('--my',(py*100)+'%');
+      if(!RM)card.style.transform=`translateY(-4px) perspective(900px) rotateY(${(px-.5)*7}deg) rotateX(${(.5-py)*7}deg)`;});
+    card.addEventListener('pointerleave',()=>{card.style.transform='';});
+  });
+    // chart draw
   scope.querySelectorAll('path.draw').forEach(p=>{const len=p.getTotalLength();p.style.strokeDasharray=len;p.style.strokeDashoffset=RM?0:len;p.getBoundingClientRect();p.style.transition='stroke-dashoffset 1.6s cubic-bezier(.3,.8,.3,1)';requestAnimationFrame(()=>p.style.strokeDashoffset=0);});
   scope.querySelectorAll('.area').forEach(a=>{a.style.opacity=0;a.style.transition='opacity 1.4s ease .3s';requestAnimationFrame(()=>a.style.opacity=1);});
   scope.querySelectorAll('.don').forEach(d=>{if(RM)return;d.style.opacity=0;d.style.transform='scale(.6)';d.style.transition=`all .6s cubic-bezier(.2,.8,.2,1) ${0.08*(+d.style.getPropertyValue('--i')||0)}s`;requestAnimationFrame(()=>{d.style.opacity=1;d.style.transform='scale(1)';});});
@@ -573,6 +619,8 @@ function runCounters(scope){
 })();
 /* init login counters */
 runCounters(document.getElementById('login'));
+/* top scroll-progress bar */
+(function(){const bar=document.getElementById('scrollbar');function upd(){const st=document.documentElement.scrollTop||document.body.scrollTop;const hgt=document.documentElement.scrollHeight-innerHeight;bar.style.width=(hgt>0?(st/hgt)*100:0)+'%';}window.addEventListener('scroll',upd,{passive:true});window.addEventListener('resize',upd);upd();})();
 </script>
 </body>
 </html>
