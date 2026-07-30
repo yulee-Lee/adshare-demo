@@ -207,6 +207,8 @@ td.num,th.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabu
 .callout svg{color:var(--coral);flex-shrink:0;margin-top:1px}
 
 #toast{position:fixed;top:26px;left:50%;transform:translateX(-50%) translateY(-24px);z-index:200;padding:13px 22px;border-radius:14px;font-size:14px;font-weight:600;display:flex;align-items:center;gap:10px;opacity:0;transition:.35s cubic-bezier(.2,.8,.2,1);pointer-events:none;color:var(--ink);background:#fff;border:1px solid var(--stroke);box-shadow:var(--sh-lg)}
+#gtip{position:fixed;z-index:300;pointer-events:none;background:rgba(15,21,36,.94);color:#fff;padding:7px 11px;border-radius:9px;font-size:12px;line-height:1.55;box-shadow:0 8px 22px rgba(0,0,0,.3);opacity:0;transition:opacity .1s;white-space:nowrap;transform:translate(-50%,-118%)}
+#gtip b{color:#fff}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
 #modal{position:fixed;inset:0;background:rgba(20,26,51,.32);backdrop-filter:blur(4px);z-index:150;display:none;align-items:center;justify-content:center}
@@ -310,6 +312,7 @@ tbody tr:hover td:first-child{box-shadow:inset 3px 0 0 var(--cobalt)}
 </div>
 
 <div id="toast"></div>
+<div id="gtip"></div>
 <div id="modal"><div class="box"><div class="mh"><h3 id="mTitle"></h3><div class="hicon" style="width:34px;height:34px;box-shadow:none;border-color:var(--stroke)" onclick="closeModal()">✕</div></div><div class="mb" id="mBody"></div><div class="mf" id="mFoot"></div></div></div>
 
 <script>
@@ -448,6 +451,21 @@ async function loadData(){
 }
 const PAL=['#3b5bff','#12b886','#f59e0b','#7c5cff','#ff5a36','#22d3ee'];
 const RED='#ff2d55',GREEN='#00c853'; // 紅漲綠跌
+function gtip(html,e){const g=document.getElementById('gtip');if(!g)return;g.innerHTML=html;g.style.left=e.clientX+'px';g.style.top=e.clientY+'px';g.style.opacity=1;}
+function gtipHide(){const g=document.getElementById('gtip');if(g)g.style.opacity=0;}
+function bindInteractive(scope){
+  scope.querySelectorAll('.dslice').forEach(el=>{if(el._b)return;el._b=1;el.style.transition='transform .18s,filter .18s';el.style.cursor='pointer';
+    el.addEventListener('mousemove',e=>{const a=el.dataset.tip.split('|');gtip(`<b>${a[0]}</b><br>${lang==='zh'?'佔比':'Share'} ${a[1]}%　NT$ ${a[2]}`,e);el.style.filter='brightness(1.08)';el.style.transform='scale(1.05)';});
+    el.addEventListener('mouseleave',()=>{gtipHide();el.style.filter='';el.style.transform='';});});
+  scope.querySelectorAll('.mbar').forEach(el=>{if(el._b)return;el._b=1;el.style.cursor='pointer';
+    el.addEventListener('mousemove',e=>{const a=el.dataset.tip.split('|');gtip(`${a[0]}<br>${lang==='zh'?'營收':'Rev'} NT$ ${nf(+a[1])}`,e);el.setAttribute('opacity','1');});
+    el.addEventListener('mouseleave',()=>{gtipHide();});});
+  scope.querySelectorAll('.ringwrap').forEach(el=>{if(el._b)return;el._b=1;el.style.cursor='help';
+    el.addEventListener('mousemove',e=>gtip(el.dataset.tip,e));el.addEventListener('mouseleave',gtipHide);});
+  scope.querySelectorAll('.mover').forEach(el=>{if(el._b)return;el._b=1;el.style.cursor='crosshair';const pts=JSON.parse(el.dataset.pts),W=+el.dataset.w;
+    el.addEventListener('mousemove',e=>{const r=el.getBoundingClientRect();const sx=(e.clientX-r.left)/r.width*W;let bi=0,bd=1e9;pts.forEach((p,i)=>{const d=Math.abs(p.sx-sx);if(d<bd){bd=d;bi=i;}});const p=pts[bi];gtip(`${p.label}<br>${lang==='zh'?'分潤':'Share'} NT$ ${nf(p.v)}`,e);});
+    el.addEventListener('mouseleave',gtipHide);});
+}
 function bindChart(scope){scope.querySelectorAll('.tchart').forEach(ch=>{
   const over=ch.querySelector('.tover'),cross=ch.querySelector('.tcross'),dot=ch.querySelector('.tdot'),tip=ch.querySelector('.ttip');
   if(!over||over._bound)return;over._bound=1;
@@ -486,11 +504,11 @@ function render(){
 function ph(title,sub,iso,right){return `<div class="pagehd"><div><h1>${title}</h1><p>${sub}</p>${iso?`<div class="iso"><svg width="13" height="13" viewBox="0 0 16 16" fill="none"><rect x="3" y="7" width="10" height="7" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M5.5 7V5a2.5 2.5 0 015 0v2" stroke="currentColor" stroke-width="1.4"/></svg>${t('isoNote')}</div>`:''}</div>${right||''}</div>`;}
 function shadeHex(hex,amt){const n=parseInt(hex.slice(1),16);let a=(n>>16&255),b=(n>>8&255),c=(n&255);a=Math.round(a+(255-a)*amt);b=Math.round(b+(255-b)*amt);c=Math.round(c+(255-c)*amt);return '#'+((1<<24)+(a<<16)+(b<<8)+c).toString(16).slice(1);}
 // 發光面積折線
-function spark(color,vals){const pts=(vals&&vals.length)?vals:[6,9,7,11,10,13,12,15,13,16];const W=180,H=44,n=pts.length,mx=Math.max(...pts),mn=Math.min(...pts),rng=(mx-mn)||1,uid=color.slice(1)+'a'+n;const x=i=>i*(W/Math.max(n-1,1)),y=v=>H-4-((v-mn)/rng)*(H-10);let d='';pts.forEach((v,i)=>d+=(i?'L':'M')+x(i).toFixed(1)+' '+y(v).toFixed(1)+' ');const area=d+`L${W} ${H} L0 ${H} Z`,lx=x(n-1),ly=y(pts[n-1]);return `<svg class="spark" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><defs><linearGradient id="a${uid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${color}" stop-opacity=".32"/><stop offset="1" stop-color="${color}" stop-opacity="0"/></linearGradient><linearGradient id="l${uid}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="${shadeHex(color,0.3)}"/><stop offset="1" stop-color="${color}"/></linearGradient><filter id="g${uid}"><feGaussianBlur stdDeviation="1.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><path d="${area}" fill="url(#a${uid})" class="area"/><path d="${d}" fill="none" stroke="url(#l${uid})" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" filter="url(#g${uid})" vector-effect="non-scaling-stroke"/><circle cx="${lx.toFixed(1)}" cy="${ly.toFixed(1)}" r="2.6" fill="${color}" vector-effect="non-scaling-stroke"/></svg>`;}
+function spark(color,vals){const pts=(vals&&vals.length)?vals:[6,9,7,11,10,13,12,15,13,16];const W=180,H=44,n=pts.length,mx=Math.max(...pts),mn=Math.min(...pts),rng=(mx-mn)||1,uid=color.slice(1)+'a'+n;const x=i=>i*(W/Math.max(n-1,1)),y=v=>H-4-((v-mn)/rng)*(H-10);let d='';pts.forEach((v,i)=>d+=(i?'L':'M')+x(i).toFixed(1)+' '+y(v).toFixed(1)+' ');const area=d+`L${W} ${H} L0 ${H} Z`,lx=x(n-1),ly=y(pts[n-1]);const opts=pts.map((v,i)=>({sx:+x(i).toFixed(1),label:(months[i]||''),v:Math.round(v*1000)}));return `<div class="mchart" style="position:relative"><svg class="spark" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><defs><linearGradient id="a${uid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${color}" stop-opacity=".32"/><stop offset="1" stop-color="${color}" stop-opacity="0"/></linearGradient><linearGradient id="l${uid}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="${shadeHex(color,0.3)}"/><stop offset="1" stop-color="${color}"/></linearGradient><filter id="g${uid}"><feGaussianBlur stdDeviation="1.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><path d="${area}" fill="url(#a${uid})" class="area"/><path d="${d}" fill="none" stroke="url(#l${uid})" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" filter="url(#g${uid})" vector-effect="non-scaling-stroke"/><circle cx="${lx.toFixed(1)}" cy="${ly.toFixed(1)}" r="2.6" fill="${color}" vector-effect="non-scaling-stroke"/></svg><div class="mover" data-w="${W}" data-pts='${JSON.stringify(opts)}' style="position:absolute;inset:0"></div></div>`;}
 // 漸層長條
-function sparkBars(color,vals){const v=(vals&&vals.length)?vals:[6,9,7,11,10,13,12,15,13,16];const W=180,H=44,n=v.length,mx=Math.max(...v,1),gap=W/n,bw=gap*0.58,uid=color.slice(1)+'b';let b='';v.forEach((val,i)=>{const h=Math.max(3,(val/mx)*(H-6));const x=i*gap+(gap-bw)/2;b+=`<rect x="${x.toFixed(1)}" y="${(H-h).toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="2.5" fill="url(#bar${uid})" opacity="${i===n-1?1:.85}"/>`;});return `<svg class="spark" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="filter:drop-shadow(0 3px 6px ${color}33)"><defs><linearGradient id="bar${uid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${shadeHex(color,0.15)}"/><stop offset="1" stop-color="${color}" stop-opacity=".4"/></linearGradient></defs>${b}</svg>`;}
+function sparkBars(color,vals){const v=(vals&&vals.length)?vals:[6,9,7,11,10,13,12,15,13,16];const W=180,H=44,n=v.length,mx=Math.max(...v,1),gap=W/n,bw=gap*0.58,uid=color.slice(1)+'b';let b='';v.forEach((val,i)=>{const h=Math.max(3,(val/mx)*(H-6));const x=i*gap+(gap-bw)/2;b+=`<rect x="${x.toFixed(1)}" y="${(H-h).toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="2.5" fill="url(#bar${uid})" opacity="${i===n-1?1:.85}" class="mbar" data-tip="${months[i]||('#'+(i+1))}|${val*1000}"/>`;});return `<svg class="spark" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="filter:drop-shadow(0 3px 6px ${color}33)"><defs><linearGradient id="bar${uid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${shadeHex(color,0.15)}"/><stop offset="1" stop-color="${color}" stop-opacity=".4"/></linearGradient></defs>${b}</svg>`;}
 // 霓虹環形進度
-function sparkRing(color,pct,label){pct=Math.max(0,Math.min(100,pct));const cx=27,cy=27,r=21,C=2*Math.PI*r,off=C*(1-pct/100),uid=color.slice(1)+'r';return `<div style="display:flex;align-items:center;gap:13px"><svg width="54" height="54" viewBox="0 0 54 54" style="width:54px;height:54px;flex-shrink:0;filter:drop-shadow(0 2px 7px ${color}55)"><defs><linearGradient id="rg${uid}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${color}"/><stop offset="1" stop-color="${shadeHex(color,0.45)}"/></linearGradient></defs><circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#e9edf6" stroke-width="6"/><circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="url(#rg${uid})" stroke-width="6" stroke-linecap="round" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}" transform="rotate(-90 ${cx} ${cy})"/><text x="${cx}" y="${cy+4.5}" text-anchor="middle" font-size="13" font-weight="800" fill="${color}" font-family="'Inter','Noto Sans TC',sans-serif">${Math.round(pct)}%</text></svg><div style="font-size:11.5px;color:var(--ink-3);line-height:1.45">${label}</div></div>`;}
+function sparkRing(color,pct,label,tip){pct=Math.max(0,Math.min(100,pct));const cx=27,cy=27,r=21,C=2*Math.PI*r,off=C*(1-pct/100),uid=color.slice(1)+'r';return `<div class="ringwrap" data-tip="${tip||''}" style="display:flex;align-items:center;gap:13px"><svg width="54" height="54" viewBox="0 0 54 54" style="width:54px;height:54px;flex-shrink:0;filter:drop-shadow(0 2px 7px ${color}55)"><defs><linearGradient id="rg${uid}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${color}"/><stop offset="1" stop-color="${shadeHex(color,0.45)}"/></linearGradient></defs><circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#e9edf6" stroke-width="6"/><circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="url(#rg${uid})" stroke-width="6" stroke-linecap="round" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}" transform="rotate(-90 ${cx} ${cy})"/><text x="${cx}" y="${cy+4.5}" text-anchor="middle" font-size="13" font-weight="800" fill="${color}" font-family="'Inter','Noto Sans TC',sans-serif">${Math.round(pct)}%</text></svg><div style="font-size:11.5px;color:var(--ink-3);line-height:1.45">${label}</div></div>`;}
 function sinfo(lbl){return `<span class="sinfo" title="${lbl}"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.6" stroke="currentColor" stroke-width="1.2"/><path d="M8 7.1v3.5M8 5.1h.02" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>`;}
 function stCard(lbl,val,unit,dt,ic,col,mini,suf){return `<div class="panel stat"><div class="st-top"><div class="lbl">${lbl}</div>${sinfo(lbl)}</div><div class="val">${unit?`<small>${unit}</small>`:''}<span data-cu="${val}">0</span>${suf?`<span style="font-size:20px;font-weight:800;margin-left:1px">${suf}</span>`:''}</div>${mini?`<div class="mini">${mini}</div>`:''}<div class="dt">${dt}</div></div>`;}
 
@@ -501,6 +519,7 @@ function pageOver(){
   const cur=(S.role==='client'?(rateClients[0]||{}).cur:((rateClients.find(x=>x.id===S.clientId)||{}).cur))||0;
   const effTxt=(S.rates&&S.rates.length)?('自 '+S.rates[S.rates.length-1].effectiveFrom+' 起生效'):t('effect');
   const totAll=settlements.reduce((a,s)=>a+s.share,0)||1;const paidS=settlements.filter(s=>s.status==='paid').reduce((a,s)=>a+s.share,0);const paidPct=paidS/totAll*100;
+  const payTip=(lang==='zh')?('已撥款 NT$ '+nf(paidS)+'<br>待撥款 NT$ '+nf(pending)):('Paid NT$ '+nf(paidS)+'<br>Pending NT$ '+nf(pending));
   const ev=[];
   settlements.filter(s=>s.status==='paid').slice(0,3).forEach(s=>ev.push(`<span><i>結算 ${s.period}</i> ${t('st_paid')} <b>$${nf(s.share)}</b></span>`));
   sources.slice(0,4).forEach(s=>ev.push(`<span>${s.n} <b>$${nf(s.v*1000)}</b></span>`));
@@ -511,7 +530,7 @@ function pageOver(){
   <div class="grid g4" style="margin-bottom:20px">
     ${stCard(t('s_rev'),rev,'NT$',n>1?`<span class="${delta>=0?'up':'down'}">${delta>=0?'▲':'▼'} ${Math.abs(delta).toFixed(1)}%</span> ${t('vsLast')}`:(lang==='zh'?'本期資料':'current period'),'◈','#3b5bff',sparkBars('#3b5bff',trend))}
     ${stCard(t('s_share'),shr,'NT$',`分潤比例 ${cur}%`,'◆','#ff5a36',spark('#ff5a36',trendShare))}
-    ${stCard(t('s_pending'),pending,'NT$',`${t('acc3')}`,'◷','#12b886',sparkRing('#12b886',paidPct,lang==='zh'?'已撥款<br>比例':'Paid<br>ratio'))}
+    ${stCard(t('s_pending'),pending,'NT$',`${t('acc3')}`,'◷','#12b886',sparkRing('#12b886',paidPct,lang==='zh'?'已撥款<br>比例':'Paid<br>ratio',payTip))}
     ${stCard(t('s_rate'),cur,'',effTxt,'%','#7c5cff','','%')}
   </div>
   <div class="grid g2" style="margin-bottom:20px">
@@ -550,7 +569,7 @@ function donut(){
   sources.forEach((s,idx)=>{const f=s.v/total;let a0=acc*2*Math.PI-Math.PI/2+(single?0:gap/2);acc+=f;let a1=acc*2*Math.PI-Math.PI/2-(single?0:gap/2);if(a1<a0)a1=a0;const lg=(a1-a0)>Math.PI?1:0;
    const p=(ang,rad)=>[cx+rad*Math.cos(ang),cy+rad*Math.sin(ang)];const[x0,y0]=p(a0,R),[x1,y1]=p(a1,R),[xi1,yi1]=p(a1,r),[xi0,yi0]=p(a0,r);
    defs+=`<linearGradient id="dg${idx}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${shade(s.c,0.1)}"/><stop offset="1" stop-color="${shade(s.c,0.5)}"/></linearGradient>`;
-   seg+=`<path d="M${x0} ${y0} A${R} ${R} 0 ${lg} 1 ${x1} ${y1} L${xi1} ${yi1} A${r} ${r} 0 ${lg} 0 ${xi0} ${yi0} Z" fill="url(#dg${idx})" class="don" style="--i:${idx};transform-origin:${cx}px ${cy}px" stroke="var(--panel)" stroke-width="2" stroke-linejoin="round"/>`;});
+   seg+=`<path d="M${x0} ${y0} A${R} ${R} 0 ${lg} 1 ${x1} ${y1} L${xi1} ${yi1} A${r} ${r} 0 ${lg} 0 ${xi0} ${yi0} Z" fill="url(#dg${idx})" class="don dslice" data-tip="${s.n}|${(s.v/total*100).toFixed(0)}|${nf(s.v*1000)}" style="--i:${idx};transform-origin:${cx}px ${cy}px" stroke="var(--panel)" stroke-width="2" stroke-linejoin="round"/>`;});
   const leg=sources.map(s=>`<span style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink-2);font-weight:600"><i style="width:11px;height:11px;border-radius:4px;background:linear-gradient(135deg,${s.c},${shade(s.c,0.4)});display:inline-block;box-shadow:0 2px 6px ${s.c}55"></i>${s.n} <b class="mono" style="color:var(--ink)">${(s.v/total*100).toFixed(0)}%</b> <span class="mono" style="color:var(--ink-3);font-size:11px">$${nf(s.v*1000)}</span></span>`).join('');
   return `<div style="display:flex;flex-direction:column;align-items:center;gap:16px"><svg width="220" height="220" viewBox="0 0 240 240" style="filter:drop-shadow(0 10px 24px rgba(59,91,255,.28))"><defs>${defs}<filter id="dglow" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2.4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><g filter="url(#dglow)">${seg}</g><text x="${cx}" y="${cy-8}" text-anchor="middle" font-size="12" fill="#98a0bb" font-family="'Inter','Noto Sans TC',sans-serif">NT$</text><text x="${cx}" y="${cy+22}" text-anchor="middle" font-size="30" font-weight="800" fill="#141a33" font-family="'Inter','Noto Sans TC',sans-serif">${totTxt}</text></svg><div style="display:flex;flex-wrap:wrap;gap:10px 18px;justify-content:center;width:100%">${leg}</div></div>`;
 }
@@ -634,6 +653,7 @@ let _io;
 function animateIn(scope){
   runCounters(scope);
   bindChart(scope);
+  bindInteractive(scope);
   // 2026 scroll-reveal: stagger panels into view
   const items=scope.querySelectorAll('.panel, .ticker');
   if(_io)_io.disconnect();
