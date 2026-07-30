@@ -447,6 +447,19 @@ async function loadData(){
   if(S.role==='admin'){const us=await api('/users');accts=us.map(u=>({n:u.name,id:u.id,role:'r_'+(u.role==='admin'?'admin':u.role==='finance'?'fin':'cust'),email:u.email,login:u.lastLogin?u.lastLogin.slice(0,16).replace('T',' '):'—',on:u.active,init:(u.name||'?').charAt(0)}));}
 }
 const PAL=['#3b5bff','#12b886','#f59e0b','#7c5cff','#ff5a36','#22d3ee'];
+const RED='#ff2d55',GREEN='#00c853'; // 紅漲綠跌
+function bindChart(scope){scope.querySelectorAll('.tchart').forEach(ch=>{
+  const over=ch.querySelector('.tover'),cross=ch.querySelector('.tcross'),dot=ch.querySelector('.tdot'),tip=ch.querySelector('.ttip');
+  if(!over||over._bound)return;over._bound=1;
+  const pts=JSON.parse(over.dataset.pts),W=+over.dataset.w;
+  over.addEventListener('mousemove',e=>{const r=over.getBoundingClientRect();const sx=(e.clientX-r.left)/r.width*W;let bi=0,bd=1e9;pts.forEach((p,i)=>{const d=Math.abs(p.sx-sx);if(d<bd){bd=d;bi=i;}});const p=pts[bi];
+    cross.setAttribute('x1',p.sx);cross.setAttribute('x2',p.sx);cross.style.opacity=1;
+    dot.setAttribute('cx',p.sx);dot.setAttribute('cy',p.ry);dot.setAttribute('stroke',p.up?RED:GREEN);dot.style.opacity=1;
+    const px=(p.sx/W)*r.width;tip.style.left=Math.min(Math.max(px,64),r.width-64)+'px';tip.style.opacity=1;
+    tip.innerHTML=`<div style="font-weight:700;margin-bottom:2px">${p.period}</div><div><span style="color:${p.up?RED:GREEN}">${p.up?'▲':'▼'}</span> ${lang==='zh'?'營收':'Rev'} <b class="mono">${nf(p.rev)}</b></div><div><span style="color:#f59e0b">◆</span> ${lang==='zh'?'分潤':'Share'} <b class="mono">${nf(p.share)}</b></div>`;
+  });
+  over.addEventListener('mouseleave',()=>{cross.style.opacity=0;dot.style.opacity=0;tip.style.opacity=0;});
+});}
 function setupClientSelector(){const sel=document.getElementById('csel');if(!sel)return;if(S.role==='client'){sel.style.display='none';return;}sel.style.display='';sel.innerHTML=S.clients.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');sel.value=S.clientId;}
 async function onClientChange(v){S.clientId=v;S.clientName=(S.clients.find(c=>c.id===v)||{}).name||'';try{await loadData();renderMenu();render();}catch(e){toast((e&&e.message)||'切換失敗',true);}}
 
@@ -502,7 +515,7 @@ function pageOver(){
     ${stCard(t('s_rate'),cur,'',effTxt,'%','#7c5cff','','%')}
   </div>
   <div class="grid g2" style="margin-bottom:20px">
-    <div class="panel"><div class="ph"><h3>${t('ch_trend')}</h3><div class="legend"><span><i style="background:#3b5bff"></i>${t('lg_rev')}</span><span><i style="background:#ff5a36"></i>${t('lg_share')}</span></div></div><div class="pb">${lineChart()}</div></div>
+    <div class="panel"><div class="ph"><h3>${t('ch_trend')}</h3><div class="legend"><span><i style="background:#ff2d55"></i>${lang==='zh'?'營收上漲':'Up'}</span><span><i style="background:#00c853"></i>${lang==='zh'?'營收下跌':'Down'}</span><span><i style="background:#f59e0b"></i>${t('lg_share')}</span></div></div><div class="pb">${lineChart()}</div></div>
     <div class="panel"><div class="ph"><h3>${t('ch_src')}</h3></div><div class="pb">${donut()}</div></div>
   </div>
   <div class="panel"><div class="ph"><h3>${t('ch_recent')}</h3><span class="more" onclick="go('settle')">${t('m_settle')} →</span></div>${settleTable(settlements.slice(0,4),false)}</div>`;
@@ -511,13 +524,22 @@ function lineChart(){
   const n=trend.length;if(!n)return '<div style="padding:44px;text-align:center;color:var(--ink-3)">尚無資料</div>';
   const W=580,H=240,pad=42,max=Math.max(...trend,...trendShare,1);
   const x=i=>pad+i*(W-pad-12)/Math.max(n-1,1),y=v=>H-26-(v/max)*(H-56);
-  let rev='',shr='';trend.forEach((v,i)=>rev+=(i?'L':'M')+x(i).toFixed(1)+' '+y(v).toFixed(1)+' ');
-  trendShare.forEach((v,i)=>shr+=(i?'L':'M')+x(i).toFixed(1)+' '+y(v).toFixed(1)+' ');
-  const area=rev+`L${x(n-1)} ${H-26} L${x(0)} ${H-26} Z`;
-  let grid='';[0,.25,.5,.75,1].forEach(f=>{const g=Math.round(max*f);const py=y(g);grid+=`<line x1="${pad}" y1="${py}" x2="${W-12}" y2="${py}" stroke="#eef1f8"/><text x="${pad-8}" y="${py+3}" text-anchor="end" font-size="10" fill="#98a0bb" font-family="'Inter','Noto Sans TC',sans-serif">${g}k</text>`;});
-  let xl='';months.forEach((m,i)=>{if(i%2===0||i===n-1)xl+=`<text x="${x(i)}" y="${H-8}" text-anchor="middle" font-size="10" fill="#98a0bb" font-family="'Inter','Noto Sans TC',sans-serif">${m}</text>`;});
-  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;overflow:visible"><defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3b5bff" stop-opacity=".22"/><stop offset="1" stop-color="#3b5bff" stop-opacity="0"/></linearGradient></defs>
-  ${grid}${xl}<path d="${area}" fill="url(#ga)" class="area"/><path d="${shr}" fill="none" stroke="#ff5a36" stroke-width="2.4" class="draw" stroke-linejoin="round"/><path d="${rev}" fill="none" stroke="#3b5bff" stroke-width="3" class="draw" stroke-linejoin="round"/><circle cx="${x(n-1)}" cy="${y(trend[n-1])}" r="5.5" fill="#3b5bff"/><circle cx="${x(n-1)}" cy="${y(trend[n-1])}" r="5.5" fill="none" stroke="#3b5bff" class="ping"/></svg>`;
+  const botY=H-26;
+  let rev='';trend.forEach((v,i)=>rev+=(i?'L':'M')+x(i).toFixed(1)+' '+y(v).toFixed(1)+' ');
+  let shr='';trendShare.forEach((v,i)=>shr+=(i?'L':'M')+x(i).toFixed(1)+' '+y(v).toFixed(1)+' ');
+  const area=rev+`L${x(n-1)} ${botY} L${x(0)} ${botY} Z`;
+  let segs='';for(let i=1;i<n;i++){const up=trend[i]>=trend[i-1];segs+=`<path d="M${x(i-1).toFixed(1)} ${y(trend[i-1]).toFixed(1)} L${x(i).toFixed(1)} ${y(trend[i]).toFixed(1)}" fill="none" stroke="${up?RED:GREEN}" stroke-width="2.8" stroke-linecap="round" filter="url(#neon)"/>`;}
+  let grid='';[0,.25,.5,.75,1].forEach(f=>{const g=Math.round(max*f);const py=y(g);grid+=`<line x1="${pad}" y1="${py}" x2="${W-12}" y2="${py}" stroke="var(--stroke)"/><text x="${pad-8}" y="${py+3}" text-anchor="end" font-size="10" fill="var(--ink-3)" font-family="'Inter','Noto Sans TC',sans-serif">${g}k</text>`;});
+  let xl='';months.forEach((m,i)=>{if(i%2===0||i===n-1)xl+=`<text x="${x(i)}" y="${H-8}" text-anchor="middle" font-size="10" fill="var(--ink-3)" font-family="'Inter','Noto Sans TC',sans-serif">${m}</text>`;});
+  const lastUp=n>1?trend[n-1]>=trend[n-2]:true,lc=lastUp?RED:GREEN;
+  const pts=trend.map((v,i)=>({sx:+x(i).toFixed(1),ry:+y(v).toFixed(1),period:(PERIODS[i]||months[i]||''),rev:v*1000,share:Math.round((trendShare[i]||0)*1000),up:i>0?trend[i]>=trend[i-1]:true}));
+  return `<div class="tchart" style="position:relative">
+  <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;overflow:visible;display:block"><defs><linearGradient id="revA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${lc}" stop-opacity=".18"/><stop offset="1" stop-color="${lc}" stop-opacity="0"/></linearGradient><filter id="neon" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2.6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+  ${grid}${xl}<path d="${area}" fill="url(#revA)" class="area"/><path d="${shr}" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="1 7" opacity=".85"/>${segs}<path d="${rev}" fill="none" stroke="#fff" stroke-opacity=".9" stroke-width="3" stroke-linecap="round" stroke-dasharray="20 5000" stroke-dashoffset="5020" filter="url(#neon)"><animate attributeName="stroke-dashoffset" from="5020" to="0" dur="2.8s" repeatCount="indefinite"/></path>
+  <line class="tcross" x1="0" y1="6" x2="0" y2="${botY}" stroke="var(--ink-3)" stroke-width="1" stroke-dasharray="4 4" style="opacity:0;pointer-events:none"/><circle class="tdot" r="5.5" fill="#fff" stroke="${lc}" stroke-width="3" style="opacity:0;pointer-events:none"/><circle cx="${x(n-1).toFixed(1)}" cy="${y(trend[n-1]).toFixed(1)}" r="5.5" fill="#fff" stroke="${lc}" stroke-width="3"/><circle cx="${x(n-1).toFixed(1)}" cy="${y(trend[n-1]).toFixed(1)}" r="5.5" fill="none" stroke="${lc}" class="ping"/></svg>
+  <div class="ttip" style="position:absolute;top:4px;transform:translateX(-50%);background:rgba(15,21,36,.92);color:#fff;padding:8px 12px;border-radius:10px;font-size:12px;line-height:1.6;pointer-events:none;opacity:0;transition:opacity .12s;box-shadow:0 8px 22px rgba(0,0,0,.28);white-space:nowrap;z-index:6"></div>
+  <div class="tover" data-w="${W}" data-pts='${JSON.stringify(pts)}' style="position:absolute;inset:0;cursor:crosshair"></div>
+  </div>`;
 }
 function donut(){
   if(!sources.length)return '<div style="padding:44px;text-align:center;color:var(--ink-3)">尚無資料</div>';
@@ -611,6 +633,7 @@ const RM=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
 let _io;
 function animateIn(scope){
   runCounters(scope);
+  bindChart(scope);
   // 2026 scroll-reveal: stagger panels into view
   const items=scope.querySelectorAll('.panel, .ticker');
   if(_io)_io.disconnect();
