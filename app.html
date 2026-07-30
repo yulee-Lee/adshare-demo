@@ -1,0 +1,1484 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ADSHARE · 廣告分潤智控台</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&family=Noto+Sans+TC:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef1f8; --bg2:#f6f8fc;
+  --panel:#ffffff; --panel-2:#fbfcff;
+  --stroke:#e5e9f2; --stroke-2:#d3d9e8;
+  --cobalt:#3b5bff; --cobalt-2:#5b76ff; --cobalt-ink:#1a2a80;
+  --coral:#ff5a36; --coral-2:#ff7a52;
+  --amber:#f59e0b; --teal:#12b886; --violet:#7c5cff; --rose:#f43f5e;
+  --ink:#141a33; --ink-2:#5a6382; --ink-3:#98a0bb;
+  --radius:18px; --radius-sm:12px;
+  --sans:"Noto Sans TC","PingFang TC","Microsoft JhengHei",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+  --mono:"Inter","Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+  --sh:0 1px 2px rgba(20,26,51,.05),0 8px 24px -12px rgba(59,91,255,.16);
+  --sh-lg:0 2px 6px rgba(20,26,51,.06),0 20px 44px -18px rgba(59,91,255,.24);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+*{scrollbar-width:thin;scrollbar-color:#c3cbe0 transparent}
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#c3cbe0;border-radius:9px;border:2.5px solid transparent;background-clip:content-box}
+::-webkit-scrollbar-thumb:hover{background:var(--cobalt);background-clip:content-box}
+html{scroll-behavior:smooth}html,body{height:100%}
+body{font-family:var(--sans);background:var(--bg);color:var(--ink);font-size:14px;line-height:1.55;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+a{color:var(--cobalt);text-decoration:none}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums;letter-spacing:-.4px}
+.grad{background:linear-gradient(100deg,var(--cobalt),var(--violet) 55%,var(--coral));-webkit-background-clip:text;background-clip:text;color:transparent}
+
+#aurora{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.9}
+
+/* ============ LOGIN ============ */
+#login{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;padding:24px;background:var(--bg)}
+.lcard{position:relative;z-index:2;width:960px;max-width:96vw;height:600px;max-height:92vh;display:flex;border-radius:28px;overflow:hidden;box-shadow:var(--sh-lg);background:#fff;animation:rise .7s cubic-bezier(.2,.85,.25,1)}
+@keyframes rise{from{opacity:0;transform:translateY(28px) scale(.98)}to{opacity:1;transform:none}}
+.lcard .left{flex:1.12;position:relative;padding:52px 50px;color:#fff;overflow:hidden;display:flex;flex-direction:column;background:linear-gradient(145deg,#2540e6 0%,var(--cobalt) 42%,var(--coral) 122%)}
+#loginCanvas{position:absolute;inset:0;opacity:.55}
+.lcard .left>*{position:relative;z-index:2}
+.lcard .brand{display:flex;align-items:center;gap:13px;margin-bottom:40px}
+.lcard .logo{width:48px;height:48px}
+.lcard .bt{font-size:11px;letter-spacing:5px;opacity:.85}
+.lcard .bt b{display:block;font-size:23px;letter-spacing:7px;font-weight:800;margin-top:2px}
+.lcard h1{font-size:44px;line-height:1.16;font-weight:800;letter-spacing:-1.2px;margin-bottom:18px;text-wrap:balance}
+.lcard .tag{font-size:15px;max-width:380px;line-height:1.75;opacity:.94}
+.lstats{display:flex;gap:30px;margin-top:36px}
+.lstats .n{font-size:26px;font-weight:800;letter-spacing:-1px}
+.lstats .l{font-size:11px;opacity:.8;letter-spacing:1px;margin-top:5px}
+.lchip{margin-top:auto;align-self:flex-start;display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);backdrop-filter:blur(6px);padding:7px 14px;border-radius:30px;font-size:12px}
+.lcard .right{width:380px;padding:56px 46px;display:flex;flex-direction:column;justify-content:center}
+.lcard .right h2{font-size:24px;font-weight:800;letter-spacing:-.5px;margin-bottom:6px}
+.lcard .right .sub{color:var(--ink-3);font-size:13px;margin-bottom:26px}
+.rtabs{display:flex;gap:6px;background:var(--bg);padding:5px;border-radius:14px;margin-bottom:24px}
+.rtabs button{flex:1;height:38px;border-radius:10px;font-size:13px;color:var(--ink-2);font-weight:600;transition:.25s}
+.rtabs button.on{background:#fff;color:var(--cobalt);box-shadow:var(--sh);font-weight:700}
+.field{margin-bottom:15px}
+.field label{display:block;font-size:12px;color:var(--ink-2);margin-bottom:7px;font-weight:600;letter-spacing:.3px}
+.inp{display:flex;align-items:center;height:46px;background:var(--bg2);border:1.5px solid var(--stroke);border-radius:13px;padding:0 14px;gap:10px;transition:.22s}
+.inp:focus-within{border-color:var(--cobalt);background:#fff;box-shadow:0 0 0 4px rgba(59,91,255,.1)}
+.inp svg{color:var(--ink-3);flex-shrink:0}
+.inp input{flex:1;border:none;outline:none;background:none;color:var(--ink);font-size:14px;font-family:var(--mono)}
+.lrow{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;color:var(--ink-2);margin:4px 0 22px}
+.btn-glow{width:100%;height:48px;border-radius:14px;font-size:15px;font-weight:800;color:#fff;position:relative;overflow:hidden;letter-spacing:2px;background:linear-gradient(120deg,var(--cobalt),var(--coral));box-shadow:0 12px 30px -10px rgba(255,90,54,.5);transition:.25s}
+.btn-glow:hover{transform:translateY(-2px);box-shadow:0 18px 40px -10px rgba(255,90,54,.6)}
+.btn-glow::after{content:"";position:absolute;top:0;left:-60%;width:38%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.5),transparent);transform:skewX(-20deg);animation:sheen 4s infinite}
+@keyframes sheen{0%,55%{left:-60%}100%{left:135%}}
+.lfoot{margin-top:22px;font-size:11px;color:var(--ink-3);text-align:center;line-height:1.9}
+
+/* ============ APP ============ */
+#app{display:none;position:relative;z-index:2;min-height:100vh}
+.sider{position:fixed;left:0;top:0;bottom:0;width:250px;padding:22px 15px;z-index:20;display:flex;flex-direction:column;background:var(--panel-2);border-right:1px solid var(--stroke)}
+.sbrand{display:flex;align-items:center;gap:12px;padding:4px 10px 24px}
+.sbrand .logo{width:36px;height:36px}
+.sbrand b{font-size:18px;font-weight:800;letter-spacing:2px;color:var(--ink)}
+.sbrand small{display:block;font-size:9px;letter-spacing:2px;color:var(--ink-3)}
+.menu{flex:1;overflow-y:auto;margin-top:2px}
+.grp{font-size:10px;letter-spacing:2px;color:var(--ink-3);padding:16px 12px 8px;text-transform:uppercase;font-weight:700}
+.mi{display:flex;align-items:center;gap:12px;height:46px;padding:0 14px;border-radius:14px;color:var(--ink-2);font-size:14px;font-weight:600;cursor:pointer;margin-bottom:4px;position:relative;transition:.24s cubic-bezier(.2,.8,.2,1)}
+.mi svg{width:19px;height:19px;flex-shrink:0}
+.mi:hover{color:var(--cobalt);background:rgba(59,91,255,.07)}
+.mi.on{color:#fff;background:linear-gradient(120deg,var(--cobalt),var(--cobalt-2));box-shadow:0 12px 26px -10px rgba(59,91,255,.6)}
+.mi .badge{margin-left:auto;background:var(--coral);color:#fff;font-size:10px;border-radius:10px;padding:1px 7px;font-family:var(--mono);font-weight:700}
+.mi.on .badge{background:#fff;color:var(--coral)}
+.sside{margin:12px 6px 2px;padding:16px;border-radius:16px;background:linear-gradient(140deg,rgba(59,91,255,.1),rgba(255,90,54,.08));font-size:12px;color:var(--ink-2)}
+.sside b{color:var(--ink);display:block;margin-bottom:4px;font-size:12.5px}
+.side-live{display:flex;align-items:center;gap:7px;margin-top:10px;font-size:11px;color:var(--teal);font-weight:600}
+.pulse{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 1.8s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(18,184,134,.5)}70%{box-shadow:0 0 0 8px rgba(18,184,134,0)}100%{box-shadow:0 0 0 0 rgba(18,184,134,0)}}
+
+.main{margin-left:250px;min-height:100vh;display:flex;flex-direction:column}
+.header{height:68px;display:flex;align-items:center;padding:0 28px;gap:14px;position:sticky;top:0;z-index:15;background:rgba(246,248,252,.8);backdrop-filter:blur(14px);border-bottom:1px solid var(--stroke)}
+.crumb{font-size:13px;color:var(--ink-3);letter-spacing:.3px}.crumb b{color:var(--ink);font-weight:700}
+.hsp{flex:1}
+.seg{display:flex;background:#fff;border:1px solid var(--stroke);border-radius:12px;padding:3px;box-shadow:var(--sh)}
+.seg button{padding:6px 14px;font-size:12.5px;border-radius:9px;color:var(--ink-2);font-weight:600;transition:.22s}
+.seg button.on{background:linear-gradient(120deg,var(--cobalt),var(--cobalt-2));color:#fff;box-shadow:0 6px 14px -6px rgba(59,91,255,.6)}
+.hicon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--ink-2);border:1px solid var(--stroke);background:#fff;position:relative;transition:.22s;box-shadow:var(--sh)}
+.hicon:hover{color:var(--cobalt);border-color:var(--cobalt)}
+.hicon .rd{position:absolute;top:8px;right:9px;width:7px;height:7px;border-radius:50%;background:var(--coral);box-shadow:0 0 0 2px #fff}
+.who{display:flex;align-items:center;gap:10px;padding:5px 12px 5px 6px;border-radius:14px;cursor:pointer;border:1px solid var(--stroke);background:#fff;transition:.22s;box-shadow:var(--sh)}
+.who:hover{border-color:var(--cobalt)}
+.who .av{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--cobalt),var(--coral));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px}
+.who .wn{font-size:13px;line-height:1.25;font-weight:600}.who .wn small{display:block;color:var(--ink-3);font-size:11px;font-weight:400}
+
+.content{padding:28px;flex:1}
+.content.swap{animation:swap .5s cubic-bezier(.2,.8,.2,1)}
+@keyframes swap{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.pagehd{margin-bottom:24px;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:14px}
+.pagehd h1{font-size:28px;font-weight:800;letter-spacing:-1px}
+.pagehd p{color:var(--ink-3);font-size:13px;margin-top:5px}
+.iso{display:inline-flex;align-items:center;gap:7px;background:rgba(59,91,255,.08);color:var(--cobalt);border:1px solid rgba(59,91,255,.2);border-radius:24px;padding:6px 15px;font-size:12px;font-weight:600;margin-top:13px}
+
+.ticker{display:flex;align-items:center;gap:16px;height:48px;margin-bottom:22px;border-radius:14px;background:#fff;border:1px solid var(--stroke);box-shadow:var(--sh);overflow:hidden;padding-left:18px}
+.ticker .tk-l{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--coral);letter-spacing:1px;white-space:nowrap;font-weight:800}
+.ticker .tk-track{flex:1;overflow:hidden;position:relative;height:100%}
+.tk-row{position:absolute;display:flex;gap:36px;align-items:center;height:100%;white-space:nowrap;animation:marq 26s linear infinite;font-family:var(--mono);font-size:12.5px;color:var(--ink-2)}
+.tk-row b{color:var(--teal)}.tk-row i{color:var(--cobalt);font-style:normal}
+@keyframes marq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+.grid{display:grid;gap:20px}
+.g4{grid-template-columns:repeat(4,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g2{grid-template-columns:1.6fr 1fr}
+.panel{position:relative;border-radius:var(--radius);border:1px solid var(--stroke);background:var(--panel);box-shadow:var(--sh);overflow:hidden;transition:.35s cubic-bezier(.2,.8,.2,1)}
+.ph{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;border-bottom:1px solid var(--stroke)}
+.ph h3{font-size:15px;font-weight:800;letter-spacing:-.2px}
+.ph .more{font-size:12px;color:var(--ink-3);cursor:pointer;font-weight:600;transition:.2s}.ph .more:hover{color:var(--cobalt)}
+.pb{padding:24px}
+
+.stat{padding:22px 24px;display:flex;flex-direction:column}
+.stat:hover{transform:translateY(-4px);box-shadow:var(--sh-lg)}
+.stat .st-top{display:flex;justify-content:space-between;align-items:center}
+.stat .lbl{font-size:14px;color:var(--ink-2);font-weight:600;letter-spacing:0}
+.stat .sinfo{color:var(--ink-3);display:flex;transition:color .2s;cursor:help}
+.stat .sinfo:hover{color:var(--cobalt)}
+.stat .val{font-size:31px;font-weight:800;margin:18px 0 0;letter-spacing:-1.5px;font-family:var(--mono);line-height:1.1}
+.stat .val small{font-size:14px;color:var(--ink-3);margin-right:5px;font-family:var(--sans);font-weight:600}
+.stat .mini{margin:14px 0 2px}.stat .mini svg{width:100%;height:auto}
+.stat .dt{font-size:12px;color:var(--ink-3);display:flex;align-items:center;gap:8px;margin-top:auto;padding-top:14px;border-top:1px solid var(--stroke)}
+.stat .spark{margin-top:8px}
+.up{color:var(--teal);font-weight:800}.down{color:var(--rose);font-weight:800}
+
+.tblwrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-size:11px;font-weight:700;color:var(--ink-3);letter-spacing:.8px;text-transform:uppercase;padding:14px 20px;border-bottom:1px solid var(--stroke);white-space:nowrap;background:var(--panel-2)}
+td{padding:15px 20px;border-bottom:1px solid var(--stroke);font-size:13.5px;color:var(--ink-2)}
+tbody tr{transition:.2s}tbody tr:hover{background:var(--bg2)}
+tbody tr:last-child td{border-bottom:none}
+td.num,th.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+.tval{color:var(--ink);font-weight:700}
+
+.tag{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;padding:3px 11px;border-radius:8px;line-height:1.5;font-weight:700}
+.tag.g{color:#0d7a5a;background:rgba(18,184,134,.12)}
+.tag.c{color:var(--cobalt-ink);background:rgba(59,91,255,.1)}
+.tag.w{color:#b45309;background:rgba(245,158,11,.14)}
+.tag.r{color:#be123c;background:rgba(244,63,94,.12)}
+.tag.n{color:var(--ink-2);background:#eef1f8}
+.dotm{width:6px;height:6px;border-radius:50%;background:currentColor}
+
+.btn{height:38px;padding:0 17px;border-radius:12px;font-size:13px;display:inline-flex;align-items:center;gap:7px;transition:.24s;border:1.5px solid transparent;font-weight:700}
+.btn.pri{background:linear-gradient(120deg,var(--cobalt),var(--cobalt-2));color:#fff;box-shadow:0 10px 24px -10px rgba(59,91,255,.55)}
+.btn.pri:hover{transform:translateY(-2px);box-shadow:0 14px 30px -10px rgba(59,91,255,.7)}
+.btn.gold{background:linear-gradient(120deg,var(--coral),var(--coral-2));color:#fff;box-shadow:0 10px 24px -10px rgba(255,90,54,.55)}
+.btn.gho{border-color:var(--stroke-2);color:var(--ink);background:#fff}.btn.gho:hover{border-color:var(--cobalt);color:var(--cobalt)}
+.btn.txt{color:var(--cobalt);padding:0 10px}.btn.txt:hover{background:rgba(59,91,255,.08)}
+.btn.sm{height:33px;font-size:12.5px;padding:0 13px}
+.toolbar{display:flex;gap:11px;flex-wrap:wrap;align-items:center}
+.sel{height:38px;border:1.5px solid var(--stroke);border-radius:12px;padding:0 34px 0 14px;font-size:13px;color:var(--ink);font-weight:600;background:#fff url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10'><path d='M1 3l4 4 4-4' stroke='%2398a0bb' fill='none' stroke-width='1.5'/></svg>") no-repeat right 13px center;-webkit-appearance:none;appearance:none;cursor:pointer;transition:.2s}
+.sel:hover{border-color:var(--stroke-2)}
+
+.progress{height:8px;background:#e9edf6;border-radius:6px;overflow:hidden;min-width:100px}
+.progress i{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,var(--cobalt),var(--coral));width:0;transition:width 1.1s cubic-bezier(.2,.8,.2,1)}
+
+.sw{width:46px;height:26px;border-radius:26px;background:#d7dceb;position:relative;transition:.28s;flex-shrink:0;cursor:pointer}
+.sw.on{background:linear-gradient(120deg,var(--cobalt),var(--cobalt-2))}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.28s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.sw.on::after{left:23px}
+.setrow{display:flex;align-items:center;justify-content:space-between;padding:18px 4px;border-bottom:1px solid var(--stroke)}
+.setrow:last-child{border-bottom:none}
+.setrow .sl{font-size:14px;color:var(--ink);font-weight:600}.setrow .sl small{display:block;color:var(--ink-3);font-size:12px;margin-top:3px;font-weight:400}
+
+.legend{display:flex;gap:18px;font-size:12px;color:var(--ink-3);align-items:center}
+.legend span{display:flex;align-items:center;gap:7px;font-weight:600}.legend i{width:14px;height:3px;border-radius:2px;display:inline-block}
+
+.upzone{border:2px dashed var(--stroke-2);border-radius:16px;padding:40px;text-align:center;background:var(--bg2);transition:.3s;cursor:pointer}
+.upzone:hover{border-color:var(--cobalt);background:rgba(59,91,255,.05)}
+.upzone .ui{width:56px;height:56px;color:var(--cobalt);margin:0 auto 14px}
+.upzone h4{font-size:15px;margin-bottom:6px;color:var(--ink);font-weight:700}.upzone p{font-size:12.5px;color:var(--ink-3)}
+
+.hist{list-style:none}
+.hist li{display:flex;gap:14px;padding:15px 0;border-bottom:1px solid var(--stroke)}
+.hist li:last-child{border-bottom:none}
+.hist .hd{width:10px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;padding-top:5px}
+.hist .hd .c{width:11px;height:11px;border-radius:50%;background:var(--cobalt);box-shadow:0 0 0 4px rgba(59,91,255,.15)}
+.hist .hd .ln{flex:1;width:2px;background:var(--stroke-2);margin-top:5px}
+.hist .ht{font-size:14px;color:var(--ink);font-weight:700}.hist .hm{font-size:12px;color:var(--ink-3);margin-top:3px}
+
+.chk{width:20px;height:20px;border:1.5px solid var(--stroke-2);border-radius:6px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:transparent;transition:.2s;font-size:12px}
+.chk.on{background:linear-gradient(120deg,var(--cobalt),var(--cobalt-2));border-color:var(--cobalt);color:#fff}
+
+.callout{background:rgba(255,90,54,.06);border:1px solid rgba(255,90,54,.2);border-left:4px solid var(--coral);border-radius:14px;padding:15px 20px;font-size:13px;color:var(--ink-2);display:flex;gap:12px;margin-bottom:22px}
+.callout svg{color:var(--coral);flex-shrink:0;margin-top:1px}
+
+#toast{position:fixed;top:26px;left:50%;transform:translateX(-50%) translateY(-24px);z-index:200;padding:13px 22px;border-radius:14px;font-size:14px;font-weight:600;display:flex;align-items:center;gap:10px;opacity:0;transition:.35s cubic-bezier(.2,.8,.2,1);pointer-events:none;color:var(--ink);background:#fff;border:1px solid var(--stroke);box-shadow:var(--sh-lg)}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+#modal{position:fixed;inset:0;background:rgba(20,26,51,.32);backdrop-filter:blur(4px);z-index:150;display:none;align-items:center;justify-content:center}
+#modal .box{width:560px;max-width:92vw;border-radius:22px;background:#fff;box-shadow:var(--sh-lg);overflow:hidden;animation:rise .4s cubic-bezier(.2,.8,.2,1)}
+#modal .mh{display:flex;justify-content:space-between;align-items:center;padding:20px 26px;border-bottom:1px solid var(--stroke)}
+#modal .mh h3{font-size:17px;font-weight:800}
+#modal .mb{padding:26px;max-height:60vh;overflow-y:auto}
+#modal .mf{padding:16px 26px;border-top:1px solid var(--stroke);display:flex;justify-content:flex-end;gap:12px}
+.formg{margin-bottom:17px}.formg label{display:block;font-size:12.5px;color:var(--ink-2);margin-bottom:8px;font-weight:600}
+.formg input,.formg .selw{width:100%;height:44px;border:1.5px solid var(--stroke);border-radius:13px;padding:0 15px;font-size:14px;color:var(--ink);background:var(--bg2);outline:none;font-family:var(--mono)}
+.formg input:focus{border-color:var(--cobalt);background:#fff;box-shadow:0 0 0 4px rgba(59,91,255,.1)}
+.mini-note{font-size:12px;color:#b45309;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.28);border-radius:12px;padding:12px 15px;margin-top:6px}
+
+/* ===== 2026 hover & scroll states ===== */
+#scrollbar{position:fixed;top:0;left:0;height:3px;z-index:120;width:0;background:linear-gradient(90deg,var(--cobalt),var(--violet),var(--coral));box-shadow:0 0 10px rgba(59,91,255,.5);transition:width .1s linear}
+.reveal{opacity:0;transform:translateY(22px)}
+.reveal.in{opacity:1;transform:none;transition:opacity .6s cubic-bezier(.2,.8,.2,1),transform .6s cubic-bezier(.2,.8,.2,1)}
+.panel:hover{border-color:rgba(59,91,255,.32);box-shadow:var(--sh-lg)}
+.stat{will-change:transform;transform-style:preserve-3d}
+.stat::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .35s;
+  background:radial-gradient(240px circle at var(--mx,50%) var(--my,50%),rgba(59,91,255,.14),transparent 62%)}
+.stat:hover::after{opacity:1}
+.stat .ic{transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+.stat:hover .ic{transform:translateZ(30px) scale(1.08) rotate(-6deg)}
+.stat .val,.stat .lbl{transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+.stat:hover .val{transform:translateZ(24px)}.stat:hover .lbl{transform:translateZ(14px)}
+.mi svg{transition:transform .24s cubic-bezier(.2,.8,.2,1)}
+.mi:hover svg{transform:scale(1.15) rotate(-4deg)}
+.btn:active{transform:translateY(0) scale(.97)!important}
+tbody tr{position:relative}
+tbody tr td:first-child{box-shadow:inset 3px 0 0 transparent;transition:box-shadow .2s}
+tbody tr:hover td:first-child{box-shadow:inset 3px 0 0 var(--cobalt)}
+.tag{transition:transform .2s}.tag:hover{transform:translateY(-1px)}
+.upzone .ui{transition:transform .4s cubic-bezier(.2,.8,.2,1)}
+.upzone:hover .ui{transform:translateY(-6px) scale(1.06)}
+.hicon:hover,.who:hover,.seg button.on{transition:.24s cubic-bezier(.2,.8,.2,1)}
+@media(hover:none){.stat:hover .ic,.stat:hover .val,.stat:hover .lbl{transform:none}}
+@media(max-width:920px){
+  .sider{width:72px;padding:16px 10px}.sbrand b,.sbrand small,.mi span,.grp,.sside{display:none}
+  .mi{justify-content:center;padding:0}.sbrand{justify-content:center}
+  .main{margin-left:72px}.g4{grid-template-columns:repeat(2,1fr)}.g2,.g3{grid-template-columns:1fr}
+  .lcard{flex-direction:column;height:auto}.lcard .left{display:none}.lcard .right{width:100%}.crumb{display:none}
+}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.001s!important;transition-duration:.001s!important}.tk-row{animation:none}}
+</style>
+</head>
+<body>
+<div id="scrollbar"></div>
+<canvas id="aurora"></canvas>
+
+<!-- ============ LOGIN ============ -->
+<div id="login">
+  <div class="lcard">
+    <div class="left">
+      <canvas id="loginCanvas"></canvas>
+      <div class="brand">
+        <svg class="logo" viewBox="0 0 48 48" fill="none"><rect width="48" height="48" rx="13" fill="rgba(255,255,255,.2)"/><path d="M13 33V21M23 33V14M33 33V26" stroke="#fff" stroke-width="3.6" stroke-linecap="round"/><circle cx="33" cy="17" r="3.6" fill="#fff"/></svg>
+        <div class="bt"><span id="l_your">您的 LOGO</span><b>ADSHARE</b></div>
+      </div>
+      <h1 id="l_h1">廣告分潤智控台</h1>
+      <p class="tag" id="l_tag">串接廣告營收、即時計算分潤、每月自動結算撥款——把數據流化為收益，一站掌握。</p>
+      <div class="lstats">
+        <div><div class="n mono" data-cu="1284500" data-pre="$">$0</div><div class="l" id="l_s1">本月營收 NTD</div></div>
+        <div><div class="n mono" data-cu="899150" data-pre="$">$0</div><div class="l" id="l_s2">應得分潤 NTD</div></div>
+        <div><div class="n mono">99.9%</div><div class="l" id="l_s3">同步妥善率</div></div>
+      </div>
+    </div>
+    <div class="right">
+      <h2 id="l_login">登入智控台</h2>
+      <div class="sub" id="l_sub">選擇身分並登入，體驗對應介面</div>
+      <div class="rtabs"><button class="on" id="rt_client" onclick="pickRole('client',this)">客戶端</button><button id="rt_admin" onclick="pickRole('admin',this)">管理員端</button></div>
+      <div class="field"><label id="l_acc">帳號</label><div class="inp"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.4"/><path d="M2.5 14c0-3 2.5-4.5 5.5-4.5s5.5 1.5 5.5 4.5" stroke="currentColor" stroke-width="1.4"/></svg><input id="accInput" value="starlight@media.com"></div></div>
+      <div class="field"><label id="l_pwd">密碼</label><div class="inp"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="3" y="7" width="10" height="7" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M5.5 7V5a2.5 2.5 0 015 0v2" stroke="currentColor" stroke-width="1.4"/></svg><input type="password" value="demo1234"></div></div>
+      <div class="lrow"><label style="display:flex;align-items:center;gap:7px;cursor:pointer"><span class="chk on" onclick="this.classList.toggle('on')">✓</span><span id="l_remember">記住我</span></label><a id="l_forgot">忘記密碼？</a></div>
+      <button class="btn-glow" id="l_enter" onclick="enter()">登　入</button>
+      <div class="lfoot"><span id="l_demo">Demo 展示版 · 序川科技工作室</span><br>案件編號 TK26072121CLCR75</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ APP ============ -->
+<div id="app">
+  <aside class="sider">
+    <div class="sbrand">
+      <svg class="logo" viewBox="0 0 48 48" fill="none"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3b5bff"/><stop offset="1" stop-color="#ff5a36"/></linearGradient></defs><rect width="48" height="48" rx="13" fill="url(#lg)" opacity=".16"/><path d="M13 33V21M23 33V14M33 33V26" stroke="url(#lg)" stroke-width="3.6" stroke-linecap="round"/><circle cx="33" cy="17" r="3.6" fill="url(#lg)"/></svg>
+      <div><b>ADSHARE</b><small>YOUR LOGO</small></div>
+    </div>
+    <nav class="menu" id="menu"></nav>
+    <div class="sside"><b id="sg_t">系統狀態</b><span id="sg_d">3 個 API 來源 · 自動同步中</span><div class="side-live"><span class="pulse"></span><span id="sg_live">即時資料串流中</span></div></div>
+  </aside>
+  <div class="main">
+    <header class="header">
+      <div class="crumb" id="crumb"></div><div class="hsp"></div>
+      <select id="csel" onchange="onClientChange(this.value)" style="display:none;height:38px;border:1.5px solid var(--stroke);border-radius:11px;padding:0 30px 0 12px;font-size:13px;font-weight:600;background:#fff;-webkit-appearance:none;appearance:none;cursor:pointer;box-shadow:var(--sh)"></select>
+      <div class="seg"><button class="on" id="lang_zh" onclick="setLang('zh')">中</button><button id="lang_en" onclick="setLang('en')">EN</button></div>
+      <div class="hicon" onclick="toast(t('t_nonew'))"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4.5 7a4.5 4.5 0 019 0c0 4 1.5 5 1.5 5H3s1.5-1 1.5-5z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M7 15a2 2 0 004 0" stroke="currentColor" stroke-width="1.4"/></svg><span class="rd"></span></div>
+      <div class="who" onclick="logout()"><div class="av" id="av">星</div><div class="wn"><span id="who_name">星光數位媒體</span><small id="who_role">客戶帳號</small></div></div>
+    </header>
+    <div class="content" id="content"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+<div id="modal"><div class="box"><div class="mh"><h3 id="mTitle"></h3><div class="hicon" style="width:34px;height:34px;box-shadow:none;border-color:var(--stroke)" onclick="closeModal()">✕</div></div><div class="mb" id="mBody"></div><div class="mf" id="mFoot"></div></div></div>
+
+<script>
+const D={zh:{
+ brand:"ADSHARE",clientCo:"星光數位媒體",clientRole:"客戶帳號",adminName:"王思婷 管理員",adminRole:"平台管理員",
+ m_over:"營運總覽",m_detail:"分潤明細",m_settle:"結算撥款",m_report:"報表中心",gA:"客戶功能",gB:"管理控制",
+ m_rate:"分潤比例",m_income:"收入串接",m_acct:"帳號權限",m_set:"系統設定",
+ isoNote:"權限隔離已啟用：本帳號僅能檢視貴公司之營收與分潤資料",
+ d_title:"營運總覽",d_sub:"即時營收與分潤彙總 · 資料期間 2026-07",
+ s_rev:"本月廣告營收",s_share:"本月應得分潤",s_pending:"待撥款金額",s_rate:"目前分潤比例",
+ vsLast:"較上月",thisRate:"分潤比例 70%",acc3:"近三期未撥款",effect:"2026-06-01 起生效",
+ ch_trend:"收益趨勢 · 近 12 個月",ch_src:"收入來源分佈",lg_rev:"廣告營收",lg_share:"分潤金額",
+ ch_recent:"近期結算單",col_period:"結算期間",col_rev:"廣告營收",col_ratio:"比例",col_share:"分潤金額",col_status:"狀態",col_pay:"撥款日",col_act:"操作",
+ st_paid:"已撥款",st_wait:"待撥款",st_calc:"結算中",st_fail:"同步失敗",st_ok:"連線正常",view:"檢視",exportx:"匯出 Excel",
+ dt_title:"分潤明細",dt_sub:"依期間與合作媒體檢視每筆營收與分潤計算",col_media:"合作媒體／來源",col_imp:"曝光數",col_src:"來源",
+ se_title:"結算撥款管理",se_sub:"每月結算產生撥款單，狀態即時更新",col_no:"結算單號",col_gen:"產生日",
+ rp_title:"報表查詢與下載",rp_sub:"自訂條件查詢並匯出 Excel 報表",f_media:"合作媒體",f_status:"狀態",all:"全部",query:"查詢",reset:"重設",
+ ra_title:"分潤比例管理",ra_sub:"依客戶設定分潤比例，含生效日與完整修改紀錄",ra_cur:"現行比例",ra_eff:"生效日",ra_updby:"最後修改",ra_hist:"修改紀錄",adjust:"調整比例",
+ ra_lock:"已結算月份採快照鎖定：調整比例僅影響生效日後、尚未結算的資料，不回溯變更歷史帳。",hist_title:"分潤比例修改紀錄 · 星光數位媒體",
+ in_title:"收入資料串接",in_sub:"API 自動同步與人工上傳雙軌，來源狀態即時監控",in_api:"API 串接來源",in_last:"最後同步",in_retry:"重新同步",in_up:"人工上傳收入資料",
+ up_h:"點擊或拖曳 Excel／CSV 至此上傳",up_p:"支援 .xlsx / .csv，單檔上限 10MB，欄位需含 期間、媒體、營收",in_recent:"最近上傳紀錄",col_file:"檔名",col_rows:"筆數",col_by:"上傳者",col_time:"時間",
+ ac_title:"帳號權限管理",ac_sub:"內部帳號與角色權限可自行設定",col_user:"使用者",col_role:"角色",col_email:"Email",col_login:"最後登入",
+ ac_roleset:"角色權限設定",r_admin:"管理員",r_fin:"財務",r_cust:"客戶",p_view:"檢視資料",p_rate:"分潤比例",p_pay:"撥款作業",p_acct:"帳號管理",p_export:"報表匯出",
+ newacct:"新增帳號",enable:"啟用",disable:"停用",edit:"編輯",permitem:"權限項目",
+ se2_title:"系統設定",se2_sub:"語言、幣別、通知等系統偏好設定",set_lang:"介面語言",set_lang_d:"切換整個後台的顯示語言（中文／English）",
+ set_cur:"預設幣別",set_cur_d:"目前以新台幣 (TWD) 結算",set_fx:"多幣別與匯率設定",set_fx_d:"未來擴充：支援 USD/JPY 等幣別自動換算（第二期）",soon:"規劃中",
+ set_notify:"通知機制",n1:"API 同步失敗通知",n1d:"同步失敗時以 Email 通知管理員",n2:"帳號開通信",n2d:"新帳號建立時寄送開通與設定密碼信",n3:"每月結算完成通知",n3d:"結算單產生後通知對應客戶",n4:"忘記密碼／重設密碼信",n4d:"使用者申請重設密碼時寄送驗證信",save:"儲存設定",
+ t_export:"報表產生中… 已下載 分潤報表_202607.xlsx",t_retry:"已重新觸發同步，Meta Audience Network 連線中…",t_saved:"設定已儲存",t_nonew:"目前沒有新通知",t_adjusted:"分潤比例已更新，將於生效日起套用",t_uploaded:"檔案已上傳，成功解析 1,240 筆營收資料",t_queried:"查詢完成，共 36 筆",t_reset:"篩選條件已重設",t_enable:"帳號狀態已更新",t_added:"帳號已建立，開通信已寄出",
+ cancel:"取消",confirm:"確定",ad_client:"客戶",ad_newrate:"新分潤比例（%）",ad_eff:"生效日",ad_reason:"調整原因（將寫入修改紀錄）",ad_warn:"送出後將新增一筆版本紀錄，僅影響 2026-08-01 起未結算之資料。",
+ sg_t:"系統狀態",sg_d:"資料來源：API 串接＋人工上傳",sg_live:"即時資料串流中",tk_l:"即時營收",l_chip:"即時資料串流中",
+},en:{
+ brand:"ADSHARE",clientCo:"Starlight Media",clientRole:"Client",adminName:"Sabrina Wang",adminRole:"Platform admin",
+ m_over:"Overview",m_detail:"Share Detail",m_settle:"Settlement",m_report:"Reports",gA:"Client",gB:"Control",
+ m_rate:"Share Rate",m_income:"Income Feeds",m_acct:"Accounts",m_set:"Settings",
+ isoNote:"Data isolation active: this account only sees your own revenue and share data",
+ d_title:"Overview",d_sub:"Live revenue & share summary · Period 2026-07",
+ s_rev:"Ad Revenue (MTD)",s_share:"Your Share (MTD)",s_pending:"Pending Payout",s_rate:"Current Share Rate",
+ vsLast:"vs last month",thisRate:"Share 70%",acc3:"Last 3 unpaid periods",effect:"Effective 2026-06-01",
+ ch_trend:"Revenue Trend · 12 months",ch_src:"Revenue by Source",lg_rev:"Ad revenue",lg_share:"Share",
+ ch_recent:"Recent Settlements",col_period:"Period",col_rev:"Ad Revenue",col_ratio:"Rate",col_share:"Share",col_status:"Status",col_pay:"Paid on",col_act:"Action",
+ st_paid:"Paid",st_wait:"Pending",st_calc:"Calculating",st_fail:"Sync failed",st_ok:"Connected",view:"View",exportx:"Export Excel",
+ dt_title:"Revenue Share Detail",dt_sub:"Per-period, per-media revenue and share calculation",col_media:"Media / Source",col_imp:"Impressions",col_src:"Source",
+ se_title:"Settlement / Payout",se_sub:"Monthly settlement generates payout notes, live status",col_no:"Note No.",col_gen:"Generated",
+ rp_title:"Reports & Download",rp_sub:"Query with custom filters and export to Excel",f_media:"Media",f_status:"Status",all:"All",query:"Search",reset:"Reset",
+ ra_title:"Share Rate Management",ra_sub:"Per-client share rate with effective date and full change log",ra_cur:"Current",ra_eff:"Effective",ra_updby:"Updated by",ra_hist:"Change log",adjust:"Adjust",
+ ra_lock:"Settled months are snapshot-locked: rate changes only affect unsettled data on/after the effective date.",hist_title:"Share Rate Change Log · Starlight Media",
+ in_title:"Income Feeds",in_sub:"Dual-track auto API sync + manual upload with live monitoring",in_api:"API sources",in_last:"Last sync",in_retry:"Re-sync",in_up:"Manual income upload",
+ up_h:"Click or drag Excel / CSV here",up_p:".xlsx / .csv, max 10MB, columns: period, media, revenue",in_recent:"Recent uploads",col_file:"File",col_rows:"Rows",col_by:"By",col_time:"Time",
+ ac_title:"Accounts & Roles",ac_sub:"Internal accounts and role permissions are configurable",col_user:"User",col_role:"Role",col_email:"Email",col_login:"Last login",
+ ac_roleset:"Role permissions",r_admin:"Admin",r_fin:"Finance",r_cust:"Client",p_view:"View data",p_rate:"Share rate",p_pay:"Payout",p_acct:"Accounts",p_export:"Export",
+ newacct:"New account",enable:"Enable",disable:"Disable",edit:"Edit",permitem:"Permission",
+ se2_title:"System Settings",se2_sub:"Language, currency and notification preferences",set_lang:"Interface language",set_lang_d:"Switch the whole console language",
+ set_cur:"Default currency",set_cur_d:"Settled in New Taiwan Dollar (TWD)",set_fx:"Multi-currency & FX",set_fx_d:"Future: auto conversion for USD/JPY etc. (Phase 2)",soon:"Planned",
+ set_notify:"Notifications",n1:"API sync failure",n1d:"Email admin when a sync fails",n2:"Activation email",n2d:"Send activation & set-password email",n3:"Settlement done",n3d:"Notify clients when a note is generated",n4:"Password reset email",n4d:"Send a verification email on reset",save:"Save",
+ t_export:"Generating… downloaded revshare_202607.xlsx",t_retry:"Re-sync triggered, connecting Meta Audience Network…",t_saved:"Settings saved",t_nonew:"No new notifications",t_adjusted:"Share rate updated, applies from effective date",t_uploaded:"Uploaded, parsed 1,240 rows",t_queried:"Done, 36 records",t_reset:"Filters reset",t_enable:"Account status updated",t_added:"Account created, activation email sent",
+ cancel:"Cancel",confirm:"Confirm",ad_client:"Client",ad_newrate:"New share rate (%)",ad_eff:"Effective date",ad_reason:"Reason (written to change log)",ad_warn:"Submitting adds a version record, affecting only unsettled data from 2026-08-01.",
+ sg_t:"System status",sg_d:"Sources: API sync + manual upload",sg_live:"Live data streaming",tk_l:"LIVE REVENUE",l_chip:"Live data streaming",
+}};
+let lang="zh",role="client";
+const S={token:null,clientId:null,clientName:'',role:null,clients:[],rates:[]};
+let trendShare=[],LATEST='2026-07',PERIODS=[];
+const t=k=>D[lang][k]||k;
+const nf=n=>Number(n||0).toLocaleString('en-US');
+const canPay=()=>['admin','finance'].includes(S.role);
+async function api(pathq,{method='GET',body,raw=false}={}){const res=await fetch('/api'+pathq,{method,headers:{...(body?{'content-type':'application/json'}:{}),...(S.token?{authorization:'Bearer '+S.token}:{})},body:body?JSON.stringify(body):undefined});if(raw)return res;const jo=await res.json().catch(()=>({}));if(!res.ok)throw (jo.error||{code:'ERR',message:'請求失敗 '+res.status});return jo.data;}
+function qs(extra={}){const p=new URLSearchParams();if(S.clientId)p.set('clientId',S.clientId);for(const k in extra)if(extra[k]!=null&&extra[k]!=='')p.set(k,extra[k]);const s=p.toString();return s?('?'+s):'';}
+
+let trend=[820,910,880,1040,1120,980,1180,1240,1360,1180,1305,1284];
+let months=['08','09','10','11','12','01','02','03','04','05','06','07'];
+let sources=[{n:'Google AdSense',v:642,c:'#3b5bff'},{n:'Meta Audience',v:318,c:'#12b886'},{n:'The Trade Desk',v:214,c:'#f59e0b'},{n:'其他 Others',v:110,c:'#7c5cff'}];
+let settlements=[
+ {no:'ST-202606',period:'2026-06',rev:1156000,ratio:70,share:809200,st:'paid',pay:'2026-07-05',gen:'2026-07-01'},
+ {no:'ST-202605',period:'2026-05',rev:1098500,ratio:70,share:768950,st:'paid',pay:'2026-06-05',gen:'2026-06-01'},
+ {no:'ST-202604',period:'2026-04',rev:1204000,ratio:60,share:722400,st:'paid',pay:'2026-05-05',gen:'2026-05-01'},
+ {no:'ST-202607',period:'2026-07',rev:1284500,ratio:70,share:899150,st:'calc',pay:'—',gen:'2026-08-01'}];
+let detail=[
+ {p:'2026-07',m:'Google AdSense',src:'API',imp:'4,820,000',rev:642000,ratio:70},
+ {p:'2026-07',m:'Meta Audience Network',src:'API',imp:'3,150,000',rev:318000,ratio:70},
+ {p:'2026-07',m:'The Trade Desk',src:'API',imp:'1,920,000',rev:214000,ratio:70},
+ {p:'2026-07',m:'直客廣告（人工上傳）',src:'manual',imp:'880,000',rev:110500,ratio:70},
+ {p:'2026-06',m:'Google AdSense',src:'API',imp:'4,510,000',rev:590000,ratio:70},
+ {p:'2026-06',m:'Meta Audience Network',src:'API',imp:'2,980,000',rev:301000,ratio:70}];
+let rateClients=[
+ {c:'星光數位媒體',cur:70,eff:'2026-06-01',by:'王思婷 / 2026-05-20'},
+ {c:'城市生活網',cur:65,eff:'2026-05-01',by:'王思婷 / 2026-04-18'},
+ {c:'3C 達人頻道',cur:72,eff:'2026-07-01',by:'李孟哲 / 2026-06-25'},
+ {c:'美食快報',cur:60,eff:'2026-03-01',by:'王思婷 / 2026-02-22'}];
+let rateHist=[
+ {t:'調整 60% → 70%',m:'生效日 2026-06-01 · 王思婷 · 原因：續約調升分潤',en:'60% → 70% · eff 2026-06-01 · Sabrina · renewal uplift'},
+ {t:'調整 55% → 60%',m:'生效日 2026-01-01 · 王思婷 · 原因：年度合約更新',en:'55% → 60% · eff 2026-01-01 · Sabrina · annual renewal'},
+ {t:'初始設定 55%',m:'生效日 2025-08-01 · 系統建立',en:'Initial 55% · eff 2025-08-01 · system'}];
+let apis=[
+ {n:'Google AdSense',st:'ok',last:'2026-07-28 03:00',color:'#3b5bff'},
+ {n:'The Trade Desk',st:'ok',last:'2026-07-28 03:00',color:'#f59e0b'},
+ {n:'Meta Audience Network',st:'fail',last:'2026-07-28 03:00',color:'#12b886'}];
+let uploads=[{f:'直客廣告_202607.xlsx',rows:'1,240',by:'王思婷',time:'2026-07-27 16:22'},{f:'補登_202606.csv',rows:'86',by:'李孟哲',time:'2026-07-02 09:40'}];
+let accts=[
+ {n:'王思婷',role:'r_admin',email:'sabrina@platform.com',login:'2026-07-28 09:12',on:true,init:'王'},
+ {n:'李孟哲',role:'r_fin',email:'leo@platform.com',login:'2026-07-27 18:03',on:true,init:'李'},
+ {n:'星光數位媒體',role:'r_cust',email:'starlight@media.com',login:'2026-07-28 08:47',on:true,init:'星'},
+ {n:'城市生活網',role:'r_cust',email:'city@media.com',login:'2026-07-20 11:20',on:false,init:'城'}];
+const perms=[['p_view',1,1,1],['p_rate',1,0,0],['p_pay',1,1,0],['p_acct',1,0,0],['p_export',1,1,1]];
+
+const clientMenu=[['over','m_over','M3 12l9-8 9 8M5 10v9h14v-9'],['detail','m_detail','M4 19V5M4 19h16M8 15v-4M12 15V8M16 15v-6'],['settle','m_settle','M3 7h18M3 12h18M3 17h12'],['report','m_report','M6 3h9l4 4v14H6zM14 3v5h5']];
+const adminMenu=[['rate','m_rate','M4 20l6-6 3 3 7-8M13 6h4v4'],['income','m_income','M12 3v12M8 11l4 4 4-4M4 21h16'],['acct','m_acct','M8 7a3 3 0 106 0 3 3 0 00-6 0M2 20c0-3 2.5-4 6-4M22 20c0-2-1.4-3.4-4-3.8'],['set','m_set','M12 8a4 4 0 100 8 4 4 0 000-8M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2']];
+let active='over';
+
+function pickRole(r,el){role=r;document.querySelectorAll('.rtabs button').forEach(b=>b.classList.remove('on'));el.classList.add('on');document.getElementById('accInput').value=r==='admin'?'sabrina@platform.com':'starlight@media.com';}
+async function enter(){
+  const email=document.getElementById('accInput').value.trim();
+  const pw=(document.querySelector('#login input[type=password]')||{}).value||'';
+  try{
+    const r=await api('/auth/login',{method:'POST',body:{email,password:pw}});
+    S.token=r.token;S.role=r.user.role;role=S.role;S.clientName=r.user.name;S.clientId=null;
+    if(S.role!=='client'){S.clients=await api('/clients');S.clientId=S.clients.length?S.clients[0].id:null;S.clientName=(S.clients.find(c=>c.id===S.clientId)||{}).name||S.clientName;}
+    active='over';await loadData();
+    document.getElementById('login').style.display='none';document.getElementById('app').style.display='block';
+    setupClientSelector();renderMenu();render();
+  }catch(e){toast((e&&e.message)||'登入失敗',true);}
+}
+function logout(){S.token=null;location.reload();}
+async function reload(){await loadData();render();}
+async function loadData(){
+  const tr=await api('/trend'+qs({months:12}));
+  PERIODS=tr.map(x=>x.period);months=tr.map(x=>x.period.slice(2));trend=tr.map(x=>Math.round(x.revenue/1000));trendShare=tr.map(x=>Math.round(x.share/1000));LATEST=tr.length?tr[tr.length-1].period:'';
+  const st=await api('/settlements'+qs());
+  settlements=st.map(s=>({no:s.id,id:s.id,period:s.period,rev:s.totalRevenue,ratio:s.rateBpsSnapshot/100,share:s.totalShare,st:s.status==='paid'?'paid':'wait',status:s.status,pay:s.payDate||'—',gen:(s.generatedAt||'').slice(0,10)}));
+  if(LATEST){const rep=await api('/report'+qs({period:LATEST}));detail=rep.rows.map(r=>({p:r.period,m:r.media||'—',src:r.source==='manual'?'manual':'API',imp:r.impressions!=null?nf(r.impressions):'—',rev:r.revenue,ratio:r.ratePct}));
+    const inc=await api('/incomes'+qs({period:LATEST}));const byS={};inc.forEach(i=>byS[i.source]=(byS[i.source]||0)+i.revenue);sources=Object.entries(byS).map(([n,v],i)=>({n,v:Math.round(v/1000),c:PAL[i%PAL.length]}));
+    apis=sources.map(s=>({n:s.n,st:'ok',last:LATEST,color:s.c}));uploads=detail.map(d=>({media:d.m,src:d.src,period:d.p,rev:d.rev}));}
+  else {detail=[];sources=[];apis=[];uploads=[];}
+  if(S.role==='client'){const rs=await api('/rates'+qs());S.rates=rs;const last=rs[rs.length-1]||{};rateClients=[{c:S.clientName,cur:last.pct||0,eff:last.effectiveFrom||'',by:last.createdBy||''}];}
+  else{rateClients=[];for(const c of S.clients){const rs=await api('/rates?clientId='+c.id);const last=rs[rs.length-1]||{};rateClients.push({c:c.name,id:c.id,cur:last.pct||0,eff:last.effectiveFrom||'',by:last.createdBy||''});if(c.id===S.clientId)S.rates=rs;}}
+  const rs=S.rates||[];rateHist=rs.slice().reverse().map(r=>({t:`比例 ${r.pct}%`,m:`生效日 ${r.effectiveFrom} · v${r.version}${r.reason?' · '+r.reason:''}`,en:`${r.pct}% · eff ${r.effectiveFrom} · v${r.version}`}));
+  if(S.role==='admin'){const us=await api('/users');accts=us.map(u=>({n:u.name,id:u.id,role:'r_'+(u.role==='admin'?'admin':u.role==='finance'?'fin':'cust'),email:u.email,login:u.lastLogin?u.lastLogin.slice(0,16).replace('T',' '):'—',on:u.active,init:(u.name||'?').charAt(0)}));}
+}
+const PAL=['#3b5bff','#12b886','#f59e0b','#7c5cff','#ff5a36','#22d3ee'];
+function setupClientSelector(){const sel=document.getElementById('csel');if(!sel)return;if(S.role==='client'){sel.style.display='none';return;}sel.style.display='';sel.innerHTML=S.clients.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');sel.value=S.clientId;}
+async function onClientChange(v){S.clientId=v;S.clientName=(S.clients.find(c=>c.id===v)||{}).name||'';try{await loadData();renderMenu();render();}catch(e){toast((e&&e.message)||'切換失敗',true);}}
+
+function renderMenu(){
+  let h=`<div class="grp">${t('gA')}</div>`;clientMenu.forEach(m=>h+=mi(m));
+  if(role==='admin'){h+=`<div class="grp">${t('gB')}</div>`;adminMenu.forEach(m=>h+=mi(m));}
+  document.getElementById('menu').innerHTML=h;
+  document.getElementById('who_name').textContent=S.clientName||(role==='admin'?t('adminName'):t('clientCo'));
+  document.getElementById('who_role').textContent=role==='admin'?t('adminRole'):role==='finance'?t('r_fin'):t('clientRole');
+  document.getElementById('av').textContent=(S.clientName||'星').charAt(0);
+  document.getElementById('sg_t').textContent=t('sg_t');document.getElementById('sg_d').textContent=t('sg_d');document.getElementById('sg_live').textContent=t('sg_live');
+}
+function mi(m){const badge='';return `<div class="mi ${active===m[0]?'on':''}" onclick="go('${m[0]}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="${m[2]}"/></svg><span>${t(m[1])}</span>${badge}</div>`;}
+function go(k){active=k;renderMenu();render();window.scrollTo(0,0);}
+
+const titleKey={over:'m_over',detail:'m_detail',settle:'m_settle',report:'m_report',rate:'m_rate',income:'m_income',acct:'m_acct',set:'m_set'};
+function render(){
+  document.getElementById('crumb').innerHTML=`ADSHARE / <b>${t(titleKey[active])}</b>`;
+  const c=document.getElementById('content');
+  const map={over:pageOver,detail:pageDetail,settle:pageSettle,report:pageReport,rate:pageRate,income:pageIncome,acct:pageAcct,set:pageSet};
+  c.classList.remove('swap');void c.offsetWidth;c.classList.add('swap');
+  c.innerHTML=map[active]();animateIn(c);
+}
+function ph(title,sub,iso,right){return `<div class="pagehd"><div><h1>${title}</h1><p>${sub}</p>${iso?`<div class="iso"><svg width="13" height="13" viewBox="0 0 16 16" fill="none"><rect x="3" y="7" width="10" height="7" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M5.5 7V5a2.5 2.5 0 015 0v2" stroke="currentColor" stroke-width="1.4"/></svg>${t('isoNote')}</div>`:''}</div>${right||''}</div>`;}
+function spark(color){const pts=[6,9,7,11,10,13,12,15,13,16];const W=180,H=40,mx=Math.max(...pts),mn=Math.min(...pts);let d='',area='';pts.forEach((v,i)=>{const x=i*(W/(pts.length-1));const y=H-3-((v-mn)/(mx-mn))*(H-9);d+=(i?'L':'M')+x.toFixed(1)+' '+y.toFixed(1)+' ';});const gid='sg'+Math.round(Math.abs(pts.reduce((a,b)=>a+b,0))*(color.charCodeAt(1)||1));area=d+`L${W} ${H} L0 ${H} Z`;return `<svg class="spark" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${color}" stop-opacity=".22"/><stop offset="1" stop-color="${color}" stop-opacity="0"/></linearGradient></defs><path d="${area}" fill="url(#${gid})"/><path d="${d}" fill="none" stroke="${color}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;}
+function sinfo(lbl){return `<span class="sinfo" title="${lbl}"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.6" stroke="currentColor" stroke-width="1.2"/><path d="M8 7.1v3.5M8 5.1h.02" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>`;}
+function stCard(lbl,val,unit,dt,ic,col,sk,suf){return `<div class="panel stat"><div class="st-top"><div class="lbl">${lbl}</div>${sinfo(lbl)}</div><div class="val">${unit?`<small>${unit}</small>`:''}<span data-cu="${val}">0</span>${suf?`<span style="font-size:20px;font-weight:800;margin-left:1px">${suf}</span>`:''}</div>${sk?`<div class="mini">${spark(col)}</div>`:''}<div class="dt">${dt}</div></div>`;}
+
+function pageOver(){
+  const iso=role==='client';
+  const n=trend.length;const rev=n?trend[n-1]*1000:0;const shr=n?trendShare[n-1]*1000:0;const prev=n>1?trend[n-2]*1000:0;const delta=prev?((rev-prev)/prev*100):0;
+  const pending=settlements.filter(s=>s.status!=='paid').reduce((a,s)=>a+s.share,0);
+  const cur=(S.role==='client'?(rateClients[0]||{}).cur:((rateClients.find(x=>x.id===S.clientId)||{}).cur))||0;
+  const effTxt=(S.rates&&S.rates.length)?('自 '+S.rates[S.rates.length-1].effectiveFrom+' 起生效'):t('effect');
+  const ev=[];
+  settlements.filter(s=>s.status==='paid').slice(0,3).forEach(s=>ev.push(`<span><i>結算 ${s.period}</i> ${t('st_paid')} <b>$${nf(s.share)}</b></span>`));
+  sources.slice(0,4).forEach(s=>ev.push(`<span>${s.n} <b>$${nf(s.v*1000)}</b></span>`));
+  const tk=ev.length?Array(2).fill(ev.join('')).join(''):'';
+  const subTxt=(lang==='zh'?'即時營收與分潤彙總 · 最新期間 ':'Live revenue & share summary · latest period ')+(LATEST||'—');
+  return ph(t('d_title'),subTxt,iso)+`
+  ${tk?`<div class="ticker"><div class="tk-l"><span class="pulse" style="background:var(--coral)"></span>${t('tk_l')}</div><div class="tk-track"><div class="tk-row">${tk}</div></div></div>`:''}
+  <div class="grid g4" style="margin-bottom:20px">
+    ${stCard(t('s_rev'),rev,'NT$',n>1?`<span class="${delta>=0?'up':'down'}">${delta>=0?'▲':'▼'} ${Math.abs(delta).toFixed(1)}%</span> ${t('vsLast')}`:(lang==='zh'?'本期資料':'current period'),'◈','#3b5bff',1)}
+    ${stCard(t('s_share'),shr,'NT$',`分潤比例 ${cur}%`,'◆','#ff5a36',1)}
+    ${stCard(t('s_pending'),pending,'NT$',`${t('acc3')}`,'◷','#12b886',1)}
+    ${stCard(t('s_rate'),cur,'',effTxt,'%','#7c5cff',0,'%')}
+  </div>
+  <div class="grid g2" style="margin-bottom:20px">
+    <div class="panel"><div class="ph"><h3>${t('ch_trend')}</h3><div class="legend"><span><i style="background:#3b5bff"></i>${t('lg_rev')}</span><span><i style="background:#ff5a36"></i>${t('lg_share')}</span></div></div><div class="pb">${lineChart()}</div></div>
+    <div class="panel"><div class="ph"><h3>${t('ch_src')}</h3></div><div class="pb">${donut()}</div></div>
+  </div>
+  <div class="panel"><div class="ph"><h3>${t('ch_recent')}</h3><span class="more" onclick="go('settle')">${t('m_settle')} →</span></div>${settleTable(settlements.slice(0,4),false)}</div>`;
+}
+function lineChart(){
+  const n=trend.length;if(!n)return '<div style="padding:44px;text-align:center;color:var(--ink-3)">尚無資料</div>';
+  const W=580,H=240,pad=42,max=Math.max(...trend,...trendShare,1);
+  const x=i=>pad+i*(W-pad-12)/Math.max(n-1,1),y=v=>H-26-(v/max)*(H-56);
+  let rev='',shr='';trend.forEach((v,i)=>rev+=(i?'L':'M')+x(i).toFixed(1)+' '+y(v).toFixed(1)+' ');
+  trendShare.forEach((v,i)=>shr+=(i?'L':'M')+x(i).toFixed(1)+' '+y(v).toFixed(1)+' ');
+  const area=rev+`L${x(n-1)} ${H-26} L${x(0)} ${H-26} Z`;
+  let grid='';[0,.25,.5,.75,1].forEach(f=>{const g=Math.round(max*f);const py=y(g);grid+=`<line x1="${pad}" y1="${py}" x2="${W-12}" y2="${py}" stroke="#eef1f8"/><text x="${pad-8}" y="${py+3}" text-anchor="end" font-size="10" fill="#98a0bb" font-family="'Inter','Noto Sans TC',sans-serif">${g}k</text>`;});
+  let xl='';months.forEach((m,i)=>{if(i%2===0||i===n-1)xl+=`<text x="${x(i)}" y="${H-8}" text-anchor="middle" font-size="10" fill="#98a0bb" font-family="'Inter','Noto Sans TC',sans-serif">${m}</text>`;});
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;overflow:visible"><defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3b5bff" stop-opacity=".22"/><stop offset="1" stop-color="#3b5bff" stop-opacity="0"/></linearGradient></defs>
+  ${grid}${xl}<path d="${area}" fill="url(#ga)" class="area"/><path d="${shr}" fill="none" stroke="#ff5a36" stroke-width="2.4" class="draw" stroke-linejoin="round"/><path d="${rev}" fill="none" stroke="#3b5bff" stroke-width="3" class="draw" stroke-linejoin="round"/><circle cx="${x(n-1)}" cy="${y(trend[n-1])}" r="5.5" fill="#3b5bff"/><circle cx="${x(n-1)}" cy="${y(trend[n-1])}" r="5.5" fill="none" stroke="#3b5bff" class="ping"/></svg>`;
+}
+function donut(){
+  if(!sources.length)return '<div style="padding:44px;text-align:center;color:var(--ink-3)">尚無資料</div>';
+  const total=sources.reduce((a,b)=>a+b.v,0)||1;let acc=0;const R=64,r=42,cx=92,cy=96;let seg='';
+  const totTxt=total>=1000?(total/1000).toFixed(2)+'M':nf(total)+'k';
+  sources.forEach((s,idx)=>{const a0=acc/total*2*Math.PI-Math.PI/2;acc+=s.v;const a1=acc/total*2*Math.PI-Math.PI/2;const lg=(a1-a0)>Math.PI?1:0;
+   const p=(ang,rad)=>[cx+rad*Math.cos(ang),cy+rad*Math.sin(ang)];const[x0,y0]=p(a0,R),[x1,y1]=p(a1,R),[xi1,yi1]=p(a1,r),[xi0,yi0]=p(a0,r);
+   seg+=`<path d="M${x0} ${y0} A${R} ${R} 0 ${lg} 1 ${x1} ${y1} L${xi1} ${yi1} A${r} ${r} 0 ${lg} 0 ${xi0} ${yi0} Z" fill="${s.c}" class="don" style="--i:${idx};transform-origin:${cx}px ${cy}px"/>`;});
+  let leg='';sources.forEach(s=>leg+=`<div style="display:flex;justify-content:space-between;padding:9px 0;font-size:13px;border-bottom:1px solid var(--stroke)"><span style="display:flex;align-items:center;gap:9px;color:var(--ink-2);font-weight:600"><i style="width:10px;height:10px;border-radius:3px;background:${s.c};display:inline-block"></i>${s.n}</span><b class="mono" style="color:var(--ink)">${(s.v/total*100).toFixed(0)}%</b></div>`);
+  return `<div style="display:flex;gap:18px;align-items:center"><svg width="192" height="192" viewBox="0 0 192 192" style="flex-shrink:0">${seg}<text x="92" y="90" text-anchor="middle" font-size="11" fill="#98a0bb" font-family="'Inter','Noto Sans TC',sans-serif">NT$</text><text x="92" y="112" text-anchor="middle" font-size="20" font-weight="800" fill="#141a33" font-family="'Inter','Noto Sans TC',sans-serif">${totTxt}</text></svg><div style="flex:1">${leg}</div></div>`;
+}
+function stTag(st){const m={paid:['g',t('st_paid')],wait:['w',t('st_wait')],calc:['c',t('st_calc')],fail:['r',t('st_fail')],ok:['g',t('st_ok')]};const[c,l]=m[st];return `<span class="tag ${c}"><span class="dotm"></span>${l}</span>`;}
+function settleTable(rows,showNo){return `<div class="tblwrap"><table><thead><tr>${showNo?`<th>${t('col_no')}</th>`:''}<th>${t('col_period')}</th><th class="num">${t('col_rev')}</th><th class="num">${t('col_ratio')}</th><th class="num">${t('col_share')}</th><th>${t('col_status')}</th><th>${t('col_pay')}</th><th>${t('col_act')}</th></tr></thead><tbody>
+  ${rows.map(r=>`<tr>${showNo?`<td class="mono tval">${r.no}</td>`:''}<td class="tval">${r.period}</td><td class="num">${nf(r.rev)}</td><td class="num">${r.ratio}%</td><td class="num tval" style="color:var(--coral)">${nf(r.share)}</td><td>${stTag(r.st)}</td><td class="num">${r.pay}</td><td>${showNo&&canPay()?`${r.status==='issued'?`<button class="btn txt sm" onclick="pubSettle('${r.id}')">發布</button>`:''}${r.status!=='paid'?`<button class="btn txt sm" onclick="paySettle('${r.id}')">撥款</button>`:''}${r.status==='paid'?`<button class="btn txt sm" onclick="toast(t('view')+' ${r.period}')">${t('view')}</button>`:''}`:`<button class="btn txt sm" onclick="toast(t('view')+' ${r.period}')">${t('view')}</button>`}</td></tr>`).join('')}</tbody></table></div>`;}
+
+function pageDetail(){return ph(t('dt_title'),t('dt_sub'),role==='client')+`
+  <div class="panel"><div class="ph"><div class="toolbar"><select class="sel"><option>2026-07</option><option>2026-06</option></select><select class="sel"><option>${t('all')} ${t('col_media')}</option><option>Google AdSense</option></select></div><button class="btn gho sm" onclick="exportNow()">${dl()}${t('exportx')}</button></div>
+  <div class="tblwrap"><table><thead><tr><th>${t('col_period')}</th><th>${t('col_media')}</th><th>${t('col_src')}</th><th class="num">${t('col_imp')}</th><th class="num">${t('col_rev')}</th><th class="num">${t('col_ratio')}</th><th class="num">${t('col_share')}</th></tr></thead><tbody>
+  ${detail.map(d=>`<tr><td class="tval">${d.p}</td><td class="tval">${d.m}</td><td>${d.src==='API'?'<span class="tag c">API</span>':'<span class="tag n">'+(lang==='zh'?'人工':'Manual')+'</span>'}</td><td class="num">${d.imp}</td><td class="num">${nf(d.rev)}</td><td class="num">${d.ratio}%</td><td class="num tval" style="color:var(--coral)">${nf(Math.round(d.rev*d.ratio/100))}</td></tr>`).join('')}</tbody></table></div></div>`;}
+function pageSettle(){return ph(t('se_title'),t('se_sub'),role==='client')+`
+  <div class="panel"><div class="ph"><div class="toolbar"><select class="sel"><option>${t('all')}</option><option>${t('st_paid')}</option><option>${t('st_wait')}</option></select>${canPay()?`<select class="sel" id="genP">${PERIODS.filter(p=>!settlements.some(s=>s.period===p)).map(p=>`<option>${p}</option>`).join('')||'<option value="">（無未結算）</option>'}</select><button class="btn pri sm" onclick="genSettle()">產生結算單</button>`:''}</div><button class="btn gho sm" onclick="exportNow()">${dl()}${t('exportx')}</button></div>${settleTable(settlements,true)}</div>`;}
+function pageReport(){return ph(t('rp_title'),t('rp_sub'),role==='client')+`
+  <div class="panel" style="margin-bottom:20px"><div class="pb"><div class="toolbar"><select class="sel"><option>2026-07</option><option>2026 Q2</option></select><select class="sel"><option>${t('all')} ${t('f_media')}</option><option>Google AdSense</option></select><select class="sel"><option>${t('all')} ${t('f_status')}</option><option>${t('st_paid')}</option></select><button class="btn pri sm" onclick="toast(t('t_queried'))">${t('query')}</button><button class="btn gho sm" onclick="toast(t('t_reset'))">${t('reset')}</button><div style="flex:1"></div><button class="btn gold sm" onclick="exportNow()">${dl('#fff')}${t('exportx')}</button></div></div></div>${settleTable(settlements,true)}`;}
+function pageRate(){return ph(t('ra_title'),t('ra_sub'),false,`<button class="btn pri" onclick="openAdjust()">＋ ${t('adjust')}</button>`)+`
+  <div class="callout"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.4"/><path d="M8 7v4M8 5h.01" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><div>${t('ra_lock')}</div></div>
+  <div class="panel"><div class="tblwrap"><table><thead><tr><th>${t('ad_client')}</th><th class="num">${t('ra_cur')}</th><th>${t('ra_eff')}</th><th>${t('ra_updby')}</th><th>${t('col_act')}</th></tr></thead><tbody>
+  ${rateClients.map(r=>`<tr><td class="tval">${r.c}</td><td class="num"><span class="tag c">${r.cur}%</span></td><td class="num">${r.eff}</td><td>${r.by}</td><td><button class="btn txt sm" onclick="openHist()">${t('ra_hist')}</button><button class="btn txt sm" onclick="openAdjust()">${t('adjust')}</button></td></tr>`).join('')}</tbody></table></div></div>`;}
+function pageIncome(){return ph(t('in_title'),t('in_sub'))+`
+  <div class="grid g3" style="margin-bottom:20px">
+  ${apis.map(a=>`<div class="panel"><div class="pb"><div style="display:flex;justify-content:space-between;align-items:flex-start"><div style="display:flex;align-items:center;gap:11px"><div style="width:44px;height:44px;border-radius:14px;background:${a.color}18;color:${a.color};display:flex;align-items:center;justify-content:center;font-weight:800">${a.n.charAt(0)}</div><div><div style="font-weight:800;color:var(--ink)">${a.n}</div><div style="font-size:12px;color:var(--ink-3);margin-top:2px" class="mono">${t('in_last')} ${a.last}</div></div></div>${stTag(a.st)}</div>
+  ${a.st==='fail'?`<div class="mini-note" style="margin-top:14px;display:flex;justify-content:space-between;align-items:center"><span class="mono">HTTP 401 · token expired</span><button class="btn gho sm" onclick="toast(t('t_retry'))">${t('in_retry')}</button></div>`:`<div style="margin-top:16px"><div class="progress"><i style="width:0" data-w="100"></i></div></div>`}</div></div>`).join('')||`<div class="panel"><div class="pb" style="color:var(--ink-3)">${lang==='zh'?'本期尚無收入來源':'No income sources yet'}</div></div>`}
+  </div>
+  <div class="grid g2">
+    <div class="panel"><div class="ph"><h3>${t('in_up')}</h3></div><div class="pb"><div class="upzone" onclick="uploadCSV()"><svg class="ui" viewBox="0 0 48 48" fill="none"><path d="M24 32V14M17 21l7-7 7 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 34v4h28v-4" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><h4>${t('up_h')}</h4><p>${t('up_p')}</p></div></div></div>
+    <div class="panel"><div class="ph"><h3>${lang==='zh'?'本期收入明細':'Income detail'}${LATEST?(' · '+LATEST):''}</h3></div><div class="tblwrap"><table><thead><tr><th>${t('col_media')}</th><th>${t('col_src')}</th><th>${lang==='zh'?'期間':'Period'}</th><th class="num">${t('col_rev')}</th></tr></thead><tbody>
+    ${uploads.map(u=>`<tr><td class="tval">${u.media}</td><td>${u.src==='API'?'<span class="tag c">API</span>':'<span class="tag n">'+(lang==='zh'?'人工':'Manual')+'</span>'}</td><td class="mono">${u.period}</td><td class="num">${nf(u.rev)}</td></tr>`).join('')||`<tr><td colspan="4" style="padding:24px;text-align:center;color:var(--ink-3)">${lang==='zh'?'尚無資料':'No data'}</td></tr>`}</tbody></table></div></div>
+  </div>`;}
+function pageAcct(){return ph(t('ac_title'),t('ac_sub'),false,`<button class="btn pri" onclick="toast(t('t_added'))">＋ ${t('newacct')}</button>`)+`
+  <div class="panel" style="margin-bottom:20px"><div class="tblwrap"><table><thead><tr><th>${t('col_user')}</th><th>${t('col_role')}</th><th>${t('col_email')}</th><th>${t('col_login')}</th><th>${t('col_status')}</th><th>${t('col_act')}</th></tr></thead><tbody>
+  ${accts.map(a=>`<tr><td><div style="display:flex;align-items:center;gap:10px"><div style="width:32px;height:32px;font-size:12px;border-radius:10px;background:linear-gradient(135deg,var(--cobalt),var(--coral));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800">${a.init}</div><span class="tval">${a.n}</span></div></td><td><span class="tag ${a.role==='r_admin'?'c':a.role==='r_fin'?'w':'n'}">${t(a.role)}</span></td><td class="mono">${a.email}</td><td class="mono">${a.login}</td><td>${a.on?`<span class="tag g"><span class="dotm"></span>${t('enable')}</span>`:`<span class="tag n"><span class="dotm"></span>${t('disable')}</span>`}</td><td><button class="btn txt sm" onclick="toggleUser('${a.id}',${!a.on})">${a.on?t('disable'):t('enable')}</button></td></tr>`).join('')}</tbody></table></div></div>
+  <div class="panel"><div class="ph"><h3>${t('ac_roleset')}</h3></div><div class="tblwrap"><table><thead><tr><th>${t('permitem')}</th><th style="text-align:center">${t('r_admin')}</th><th style="text-align:center">${t('r_fin')}</th><th style="text-align:center">${t('r_cust')}</th></tr></thead><tbody>
+  ${perms.map(p=>`<tr><td class="tval">${t(p[0])}</td>${[1,2,3].map(i=>`<td style="text-align:center"><span class="chk ${p[i]?'on':''}" onclick="this.classList.toggle('on')">✓</span></td>`).join('')}</tr>`).join('')}</tbody></table></div><div class="pb" style="border-top:1px solid var(--stroke)"><button class="btn pri sm" onclick="toast(t('t_saved'))">${t('save')}</button></div></div>`;}
+function pageSet(){const sw=on=>`<div class="sw ${on?'on':''}" onclick="this.classList.toggle('on')"></div>`;return ph(t('se2_title'),t('se2_sub'))+`
+  <div class="grid g2"><div>
+    <div class="panel"><div class="ph"><h3>${t('set_lang')} · ${t('set_cur')}</h3></div><div class="pb">
+      <div class="setrow"><div class="sl">${t('set_lang')}<small>${t('set_lang_d')}</small></div><div class="seg"><button class="${lang==='zh'?'on':''}" onclick="setLang('zh')">中文</button><button class="${lang==='en'?'on':''}" onclick="setLang('en')">English</button></div></div>
+      <div class="setrow"><div class="sl">${t('set_cur')}<small>${t('set_cur_d')}</small></div><select class="sel"><option>TWD 新台幣</option><option>USD</option><option>JPY</option></select></div>
+      <div class="setrow"><div class="sl">${t('set_fx')}<small>${t('set_fx_d')}</small></div><span class="tag w">${t('soon')}</span></div>
+    </div></div>
+  </div><div>
+    <div class="panel"><div class="ph"><h3>${t('set_notify')}</h3></div><div class="pb">
+      <div class="setrow"><div class="sl">${t('n1')}<small>${t('n1d')}</small></div>${sw(1)}</div>
+      <div class="setrow"><div class="sl">${t('n2')}<small>${t('n2d')}</small></div>${sw(1)}</div>
+      <div class="setrow"><div class="sl">${t('n3')}<small>${t('n3d')}</small></div>${sw(1)}</div>
+      <div class="setrow"><div class="sl">${t('n4')}<small>${t('n4d')}</small></div>${sw(0)}</div>
+    </div><div class="pb" style="border-top:1px solid var(--stroke)"><button class="btn pri sm" onclick="toast(t('t_saved'))">${t('save')}</button></div></div>
+  </div></div>`;}
+function dl(c){return `<svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 2v8M5 7l3 3 3-3M3 13h10" stroke="${c||'currentColor'}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;}
+
+function openHist(){document.getElementById('mTitle').textContent=t('hist_title');document.getElementById('mBody').innerHTML=`<ul class="hist">${rateHist.map((h,i)=>`<li><div class="hd"><div class="c"></div>${i<rateHist.length-1?'<div class="ln"></div>':''}</div><div><div class="ht">${lang==='zh'?h.t:h.en.split(' · ')[0]}</div><div class="hm">${lang==='zh'?h.m:h.en}</div></div></li>`).join('')}</ul>`;document.getElementById('mFoot').innerHTML=`<button class="btn gho" onclick="closeModal()">${t('confirm')}</button>`;document.getElementById('modal').style.display='flex';}
+function openAdjust(){document.getElementById('mTitle').textContent=t('adjust');document.getElementById('mBody').innerHTML=`
+  <div class="formg"><label>${t('ad_client')}</label><select class="selw sel" id="adC">${rateClients.map(r=>`<option value="${r.id||''}" ${r.id===S.clientId?'selected':''}>${r.c}</option>`).join('')}</select></div>
+  <div class="formg"><label>${t('ad_newrate')}</label><input id="adP" value="72"></div>
+  <div class="formg"><label>${t('ad_eff')}</label><input id="adE" value="2026-08-01"></div>
+  <div class="formg"><label>${t('ad_reason')}</label><input id="adR" placeholder="${lang==='zh'?'例如：續約調整':'e.g. renewal adjustment'}"></div>
+  <div class="mini-note">${t('ad_warn')}</div>`;document.getElementById('mFoot').innerHTML=`<button class="btn gho" onclick="closeModal()">${t('cancel')}</button><button class="btn pri" onclick="submitAdjust()">${t('confirm')}</button>`;document.getElementById('modal').style.display='flex';}
+function closeModal(){document.getElementById('modal').style.display='none';}
+async function exportNow(){try{const res=await api('/report/export'+qs({period:LATEST}),{raw:true});if(!res.ok){const j=await res.json();throw (j.error||{message:'匯出失敗'});}const blob=await res.blob();const u=URL.createObjectURL(blob);const a=document.createElement('a');a.href=u;a.download='report_'+LATEST+'.csv';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(u);toast('已匯出 report_'+LATEST+'.csv');}catch(e){toast((e&&e.message)||'匯出失敗',true);}}
+async function submitAdjust(){try{const cid=(document.getElementById('adC')&&document.getElementById('adC').value)||S.clientId;await api('/rates',{method:'POST',body:{clientId:cid,pct:Number(document.getElementById('adP').value),effectiveFrom:document.getElementById('adE').value,reason:document.getElementById('adR').value}});closeModal();await reload();toast(t('t_adjusted'));}catch(e){toast((e&&e.message)||'更新失敗',true);}}
+async function genSettle(){const p=(document.getElementById('genP')||{}).value;if(!p)return toast('無未結算期間',true);try{await api('/settlements/generate',{method:'POST',body:{clientId:S.clientId,period:p}});await reload();toast('已產生結算單 '+p);}catch(e){toast((e&&e.message)||'失敗',true);}}
+async function pubSettle(id){try{await api('/settlements/'+id+'/publish',{method:'POST',body:{}});await reload();toast('已發布結算單');}catch(e){toast((e&&e.message)||'失敗',true);}}
+async function paySettle(id){try{await api('/settlements/'+id+'/pay',{method:'POST',body:{payDate:new Date().toISOString().slice(0,10)}});await reload();toast('已標記撥款');}catch(e){toast((e&&e.message)||'失敗',true);}}
+async function uploadCSV(){const csv=prompt('貼上 CSV（欄位：period,media,source,revenue,campaignType）',"period,media,source,revenue,campaignType\n2026-08,星光首頁,adsense,700000,revshare");if(!csv)return;try{const r=await api('/ingest/manual',{method:'POST',body:{clientId:S.clientId,csv}});await reload();toast('上傳完成：新增 '+r.inserted+'、更新 '+r.updated+(r.errors.length?'、錯誤 '+r.errors.length:''));}catch(e){toast((e&&e.message)||'上傳失敗',true);}}
+async function toggleUser(id,act){try{await api('/users/'+id+'/active',{method:'POST',body:{active:act}});await reload();toast('帳號狀態已更新');}catch(e){toast((e&&e.message)||'失敗',true);}}
+let toTimer;function toast(m){const el=document.getElementById('toast');el.innerHTML=`<svg width="17" height="17" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" fill="#12b886"/><path d="M5 8l2 2 4-4" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>${m}`;el.classList.add('show');clearTimeout(toTimer);toTimer=setTimeout(()=>el.classList.remove('show'),2600);}
+
+function setLang(l){lang=l;document.getElementById('lang_zh').classList.toggle('on',l==='zh');document.getElementById('lang_en').classList.toggle('on',l==='en');if(document.getElementById('login').style.display!=='none')applyLoginLang();renderMenu();render();}
+function applyLoginLang(){const z=lang==='zh',g=id=>document.getElementById(id);
+  g('l_your').textContent=z?'您的 LOGO':'Your Logo';g('l_h1').textContent=z?'廣告分潤智控台':'Ad Revenue Command';
+  g('l_tag').textContent=z?'串接廣告營收、即時計算分潤、每月自動結算撥款——把數據流化為收益，一站掌握。':'Sync ad revenue, calculate shares in real time, auto-settle monthly — turn data streams into revenue.';
+  g('l_s1').textContent=z?'本月營收 NTD':'Revenue MTD';g('l_s2').textContent=z?'應得分潤 NTD':'Your Share';g('l_s3').textContent=z?'同步妥善率':'Sync uptime';
+  g('l_login').textContent=z?'登入智控台':'Sign in';g('l_sub').textContent=z?'選擇身分並登入，體驗對應介面':'Pick a role and sign in';
+  g('rt_client').textContent=z?'客戶端':'Client';g('rt_admin').textContent=z?'管理員端':'Admin';
+  g('l_acc').textContent=z?'帳號':'Account';g('l_pwd').textContent=z?'密碼':'Password';g('l_remember').textContent=z?'記住我':'Remember me';g('l_forgot').textContent=z?'忘記密碼？':'Forgot?';
+  g('l_enter').textContent=z?'登　入':'Sign in';g('l_demo').textContent=z?'Demo 展示版 · 序川科技工作室':'Demo · Xuchuan Tech Studio';}
+
+const RM=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+let _io;
+function animateIn(scope){
+  runCounters(scope);
+  // 2026 scroll-reveal: stagger panels into view
+  const items=scope.querySelectorAll('.panel, .ticker');
+  if(_io)_io.disconnect();
+  if(RM){items.forEach(el=>el.classList.add('in'));}
+  else{
+    items.forEach(el=>el.classList.add('reveal'));
+    _io=new IntersectionObserver((es)=>es.forEach(e=>{if(e.isIntersecting){const el=e.target;const idx=[...items].indexOf(el);el.style.transitionDelay=Math.min(idx*60,360)+'ms';el.classList.add('in');_io.unobserve(el);}}),{threshold:.12,rootMargin:'0px 0px -40px 0px'});
+    items.forEach(el=>_io.observe(el));
+    requestAnimationFrame(()=>items.forEach(el=>{const r=el.getBoundingClientRect();if(r.top<innerHeight)el.classList.add('in');}));
+  }
+  // cursor spotlight + 3D tilt on stat cards
+  scope.querySelectorAll('.stat').forEach(card=>{
+    card.addEventListener('pointermove',e=>{const r=card.getBoundingClientRect();const px=(e.clientX-r.left)/r.width,py=(e.clientY-r.top)/r.height;
+      card.style.setProperty('--mx',(px*100)+'%');card.style.setProperty('--my',(py*100)+'%');
+      if(!RM)card.style.transform=`translateY(-4px) perspective(900px) rotateY(${(px-.5)*7}deg) rotateX(${(.5-py)*7}deg)`;});
+    card.addEventListener('pointerleave',()=>{card.style.transform='';});
+  });
+  scope.querySelectorAll('path.draw').forEach(p=>{const len=p.getTotalLength();p.style.strokeDasharray=len;p.style.strokeDashoffset=RM?0:len;p.getBoundingClientRect();p.style.transition='stroke-dashoffset 1.6s cubic-bezier(.3,.8,.3,1)';requestAnimationFrame(()=>p.style.strokeDashoffset=0);});
+  scope.querySelectorAll('.area').forEach(a=>{a.style.opacity=0;a.style.transition='opacity 1.4s ease .3s';requestAnimationFrame(()=>a.style.opacity=1);});
+  scope.querySelectorAll('.don').forEach(d=>{if(RM)return;d.style.opacity=0;d.style.transform='scale(.6)';d.style.transition=`all .6s cubic-bezier(.2,.8,.2,1) ${0.08*(+d.style.getPropertyValue('--i')||0)}s`;requestAnimationFrame(()=>{d.style.opacity=1;d.style.transform='scale(1)';});});
+  scope.querySelectorAll('.progress i').forEach(i=>{const w=i.getAttribute('data-w');if(w)requestAnimationFrame(()=>i.style.width=w+'%');});
+  const ep=scope.querySelector('.ping');if(ep&&!RM){ep.animate([{r:5.5,opacity:.8},{r:16,opacity:0}],{duration:1800,iterations:Infinity});}
+}
+function runCounters(scope){
+  scope.querySelectorAll('[data-cu]').forEach(el=>{const target=+el.getAttribute('data-cu');const pre=el.getAttribute('data-pre')||'';if(RM){el.textContent=pre+nf(target);return;}
+    const dur=1200,t0=performance.now();function step(now){let p=Math.min((now-t0)/dur,1);p=1-Math.pow(1-p,3);el.textContent=pre+nf(Math.round(target*p));if(p<1)requestAnimationFrame(step);}requestAnimationFrame(step);});
+}
+
+/* light mesh background */
+(function(){const cv=document.getElementById('aurora'),ctx=cv.getContext('2d');let w,h;
+ const blobs=[{x:.15,y:.1,r:.5,c:[59,91,255],a:.1,vx:.00006,vy:.00004},{x:.85,y:.2,r:.42,c:[255,90,54],a:.08,vx:-.00005,vy:.00006},{x:.6,y:.95,r:.5,c:[124,92,255],a:.07,vx:.00004,vy:-.00005}];
+ function rs(){w=cv.width=innerWidth;h=cv.height=innerHeight;}window.addEventListener('resize',rs);rs();
+ function draw(){ctx.clearRect(0,0,w,h);ctx.fillStyle='#eef1f8';ctx.fillRect(0,0,w,h);
+   blobs.forEach(b=>{const cx=b.x*w,cy=b.y*h,rad=b.r*Math.max(w,h);const g=ctx.createRadialGradient(cx,cy,0,cx,cy,rad);g.addColorStop(0,`rgba(${b.c[0]},${b.c[1]},${b.c[2]},${b.a})`);g.addColorStop(1,'rgba(255,255,255,0)');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);});}
+ function loop(){blobs.forEach(b=>{b.x+=b.vx;b.y+=b.vy;if(b.x<.05||b.x>.95)b.vx*=-1;if(b.y<.05||b.y>.95)b.vy*=-1;});draw();if(!RM)requestAnimationFrame(loop);}
+ draw();if(!RM)requestAnimationFrame(loop);
+})();
+/* login particle network (on colored block) */
+(function(){const cv=document.getElementById('loginCanvas');if(!cv)return;const ctx=cv.getContext('2d');let w,h,ps=[];
+ function rs(){w=cv.width=cv.offsetWidth;h=cv.height=cv.offsetHeight;ps=Array.from({length:Math.min(60,Math.floor(w*h/17000))},()=>({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3}));}
+ window.addEventListener('resize',rs);rs();
+ function draw(){ctx.clearRect(0,0,w,h);
+   for(let i=0;i<ps.length;i++){const p=ps[i];p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>w)p.vx*=-1;if(p.y<0||p.y>h)p.vy*=-1;
+     ctx.beginPath();ctx.arc(p.x,p.y,1.7,0,7);ctx.fillStyle='rgba(255,255,255,.8)';ctx.fill();
+     for(let j=i+1;j<ps.length;j++){const q=ps[j],dx=p.x-q.x,dy=p.y-q.y,d=Math.hypot(dx,dy);if(d<115){ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);ctx.strokeStyle=`rgba(255,255,255,${.28*(1-d/115)})`;ctx.lineWidth=1;ctx.stroke();}}}
+   if(!RM)requestAnimationFrame(draw);}
+ draw();
+})();
+runCounters(document.getElementById('login'));
+/* top scroll-progress bar */
+(function(){const bar=document.getElementById('scrollbar');function upd(){const st=document.documentElement.scrollTop||document.body.scrollTop;const hgt=document.documentElement.scrollHeight-innerHeight;bar.style.width=(hgt>0?(st/hgt)*100:0)+'%';}window.addEventListener('scroll',upd,{passive:true});window.addEventListener('resize',upd);upd();})();
+</script>
+<script>(function(){
+
+// ---- 瀏覽器 demo 認證 shim（取代 Node crypto；僅供公開 Demo，正式站用 Supabase Auth）----
+const auth = {
+  hashPassword: (p) => 'demo$' + String(p),
+  verifyPassword: (p, s) => s === 'demo$' + String(p),
+  sign: (payload, secret, ttl, now) => btoa(unescape(encodeURIComponent(JSON.stringify({ ...payload, iat: now, exp: now + ttl })))),
+  verify: (tok, secret, now) => {
+    let b; try { b = JSON.parse(decodeURIComponent(escape(atob(tok)))); } catch { throw new AppError('UNAUTHENTICATED', 'token 格式錯誤'); }
+    if (b.exp && now > b.exp) throw new AppError('UNAUTHENTICATED', 'token 已過期');
+    return b;
+  },
+};
+const hashPassword = auth.hashPassword;
+const fs = { writeFileSync() {}, readFileSync() { return '{}'; } };
+
+
+/*
+ * 共用函式庫 — 廣告分潤系統核心
+ * 金額一律以「整數（新台幣元）」與「基點 bps」運算，避免浮點誤差。
+ * 分潤比例 70% = 7000 bps；分潤金額 = round(revenue * bps / 10000)。
+ */
+
+/** 期間字串驗證 YYYY-MM */
+function isPeriod(p) {
+  return typeof p === 'string' && /^\d{4}-(0[1-9]|1[0-2])$/.test(p);
+}
+
+/** 期間 → 該月第一天（用於生效日比較），回傳可比較字串 YYYY-MM-01 */
+function periodStart(p) {
+  if (!isPeriod(p)) throw new AppError('INVALID_PERIOD', `期間格式錯誤：${p}`);
+  return `${p}-01`;
+}
+
+/** 日期字串驗證 YYYY-MM-DD */
+function isDate(d) {
+  return typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d);
+}
+
+/** 分潤計算：整數金額 × 基點，四捨五入到整數元。永遠不產生浮點殘差。 */
+function calcShare(revenue, rateBps) {
+  if (!Number.isInteger(revenue)) throw new AppError('BAD_AMOUNT', `營收須為整數：${revenue}`);
+  if (!Number.isInteger(rateBps) || rateBps < 0) throw new AppError('BAD_RATE', `比例基點須為非負整數：${rateBps}`);
+  // 以整數運算後四捨五入（round half up）
+  const scaled = revenue * rateBps;
+  return Math.round(scaled / 10000);
+}
+
+/** 百分比字串 → 基點；接受 70 / 70.5 / "70" */
+function pctToBps(pct) {
+  const n = Number(pct);
+  if (!Number.isFinite(n) || n < 0) throw new AppError('BAD_RATE', `分潤比例不合法：${pct}`);
+  return Math.round(n * 100);
+}
+function bpsToPct(bps) { return bps / 100; }
+
+/** 產生 CSV（欄位含逗號/引號/換行會自動加引號並跳脫） */
+function toCSV(headers, rows) {
+  const esc = (v) => {
+    const s = v === null || v === undefined ? '' : String(v);
+    return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  };
+  const head = headers.map((h) => esc(h.label !== undefined ? h.label : h)).join(',');
+  const body = rows
+    .map((r) => headers.map((h) => esc(r[h.key !== undefined ? h.key : h])).join(','))
+    .join('\r\n');
+  return '﻿' + head + '\r\n' + body; // 加 BOM，Excel 開啟中文不亂碼
+}
+
+/** 解析 CSV（支援引號、跳脫、CRLF/LF），回傳物件陣列（第一列為表頭） */
+function parseCSV(text) {
+  if (typeof text !== 'string') throw new AppError('BAD_CSV', 'CSV 內容須為字串');
+  const clean = text.replace(/^﻿/, '');
+  const rows = [];
+  let row = [], field = '', i = 0, inQ = false;
+  while (i < clean.length) {
+    const c = clean[i];
+    if (inQ) {
+      if (c === '"') {
+        if (clean[i + 1] === '"') { field += '"'; i += 2; continue; }
+        inQ = false; i++; continue;
+      }
+      field += c; i++; continue;
+    }
+    if (c === '"') { inQ = true; i++; continue; }
+    if (c === ',') { row.push(field); field = ''; i++; continue; }
+    if (c === '\r') { i++; continue; }
+    if (c === '\n') { row.push(field); rows.push(row); row = []; field = ''; i++; continue; }
+    field += c; i++;
+  }
+  if (field.length > 0 || row.length > 0) { row.push(field); rows.push(row); }
+  if (rows.length === 0) return [];
+  const headers = rows[0].map((h) => h.trim());
+  return rows.slice(1)
+    .filter((r) => r.some((v) => v !== '' && v !== undefined))
+    .map((r) => {
+      const o = {};
+      headers.forEach((h, idx) => { o[h] = (r[idx] !== undefined ? r[idx] : '').trim(); });
+      return o;
+    });
+}
+
+/** 匯率換算：base 為系統基準幣別；rates 為 { CUR: 對 base 的匯率 } */
+function fxConvert(amount, from, to, rates, base) {
+  if (from === to) return amount;
+  const rate = (cur) => {
+    if (cur === base) return 1;
+    const r = rates[cur];
+    if (!r || r <= 0) throw new AppError('NO_FX', `缺少幣別匯率：${cur}`);
+    return r;
+  };
+  // amount(from) → base → to
+  const inBase = amount * rate(from);
+  const out = inBase / rate(to);
+  return Math.round(out);
+}
+
+/** 標準化錯誤（帶錯誤碼，供 API 對應 HTTP 狀態） */
+class AppError extends Error {
+  constructor(code, message, status) {
+    super(message || code);
+    this.code = code;
+    this.status = status || AppError.STATUS[code] || 400;
+  }
+}
+AppError.STATUS = {
+  UNAUTHENTICATED: 401,
+  BAD_CREDENTIALS: 401,
+  FORBIDDEN: 403,
+  TENANT_DENIED: 403,
+  NOT_FOUND: 404,
+  CONFLICT: 409,
+  LOCKED: 409,
+};
+
+/** i18n 訊息（後端層級的少量訊息，前端另有完整字典） */
+const MSG = {
+  zh: {
+    LOCKED: '該期間已結算並鎖定，不可回溯變更',
+    TENANT_DENIED: '權限隔離：僅能存取自己的資料',
+    FORBIDDEN: '角色權限不足',
+    NO_RATE: '查無適用之分潤比例（請先設定生效比例）',
+  },
+  en: {
+    LOCKED: 'Period is settled and locked; no retroactive change',
+    TENANT_DENIED: 'Data isolation: you can only access your own data',
+    FORBIDDEN: 'Insufficient role permission',
+    NO_RATE: 'No effective share rate found (please set one first)',
+  },
+};
+
+
+/*
+ * 資料層：以記憶體物件保存，可序列化為 JSON 持久化。
+ * 結構與 supabase/schema.sql 的 Postgres 資料表一對一對應。
+ */
+
+function createStore() {
+  const store = {
+    seq: {},
+    roles: [], users: [], clients: [], media: [], placements: [],
+    campaignTypes: [], shareRates: [], incomes: [], settlements: [],
+    audit: [], notifications: [],
+    settings: {
+      baseCurrency: 'TWD',
+      fxRates: { TWD: 1, USD: 31.5, JPY: 0.21 }, // 對 TWD 之匯率（示意，可後台設定）
+      locale: 'zh',
+      notify: { api_sync_failed: true, account_activation: true, settlement_done: true, password_reset: true },
+    },
+    nextId(table) {
+      this.seq[table] = (this.seq[table] || 0) + 1;
+      const prefix = { users: 'U', clients: 'C', media: 'M', placements: 'P', campaignTypes: 'T', shareRates: 'R', incomes: 'I', settlements: 'S', notifications: 'N', audit: 'A' }[table] || 'X';
+      return `${prefix}${String(this.seq[table]).padStart(4, '0')}`;
+    },
+    toJSON() { return JSON.stringify(this, null, 2); },
+  };
+  return store;
+}
+
+function saveStore(store, path) { fs.writeFileSync(path, store.toJSON()); }
+function loadStore(path) {
+  const raw = JSON.parse(fs.readFileSync(path, 'utf8'));
+  const s = createStore();
+  Object.assign(s, raw);
+  return s;
+}
+
+/** 建立示範種子資料（與前端 Demo 情境一致），isoNow 為固定時間字串以利測試可重現 */
+function seed(store, isoNow = '2026-07-30T00:00:00.000Z') {
+  const now = isoNow;
+  // 角色與權限
+  const PERMS = { admin: ['p_view', 'p_rate', 'p_pay', 'p_acct', 'p_export'], finance: ['p_view', 'p_pay', 'p_export'], client: ['p_view', 'p_export'] };
+  const roleAdmin = { id: store.nextId('roles') || 'ROLE_A', code: 'admin', name: '管理員', perms: PERMS.admin };
+  const roleFin = { code: 'finance', name: '財務', perms: PERMS.finance };
+  const roleCust = { code: 'client', name: '客戶', perms: PERMS.client };
+  roleAdmin.id = 'ROLE_admin'; roleFin.id = 'ROLE_finance'; roleCust.id = 'ROLE_client';
+  store.roles.push(roleAdmin, roleFin, roleCust);
+
+  // 客戶（承租戶）
+  const c1 = { id: store.nextId('clients'), code: 'starlight', name: '星光數位媒體', active: true };
+  const c2 = { id: store.nextId('clients'), code: 'city', name: '城市生活網', active: true };
+  store.clients.push(c1, c2);
+
+  // 使用者（內部 + 客戶）
+  store.users.push(
+    { id: store.nextId('users'), email: 'sabrina@platform.com', name: '王思婷', passwordHash: hashPassword('demo1234'), roleId: 'ROLE_admin', clientId: null, active: true, createdAt: now, lastLogin: null },
+    { id: store.nextId('users'), email: 'leo@platform.com', name: '李孟哲', passwordHash: hashPassword('demo1234'), roleId: 'ROLE_finance', clientId: null, active: true, createdAt: now, lastLogin: null },
+    { id: store.nextId('users'), email: 'starlight@media.com', name: '星光數位媒體', passwordHash: hashPassword('demo1234'), roleId: 'ROLE_client', clientId: c1.id, active: true, createdAt: now, lastLogin: null },
+    { id: store.nextId('users'), email: 'city@media.com', name: '城市生活網', passwordHash: hashPassword('demo1234'), roleId: 'ROLE_client', clientId: c2.id, active: false, createdAt: now, lastLogin: null },
+  );
+
+  // 廣告活動類型（彈性欄位設定；新增類型只需新增此設定，不改結構/程式）
+  store.campaignTypes.push(
+    { id: store.nextId('campaignTypes'), code: 'revshare', name: '純分潤', active: true,
+      fields: [
+        { key: 'impressions', label: '曝光數', type: 'number', show: true },
+        { key: 'clicks', label: '點擊數', type: 'number', show: true },
+      ] },
+    { id: store.nextId('campaignTypes'), code: 'placement_buy', name: '版位購買', active: true,
+      fields: [
+        { key: 'slot_price', label: '版位單價', type: 'number', show: true },
+        { key: 'days', label: '購買天數', type: 'number', show: true },
+      ] },
+  );
+  const tRev = store.campaignTypes[0], tBuy = store.campaignTypes[1];
+
+  // 媒體與版位（隸屬客戶）
+  const m1 = { id: store.nextId('media'), clientId: c1.id, name: '星光首頁', active: true };
+  const m2 = { id: store.nextId('media'), clientId: c1.id, name: '星光影音', active: true };
+  store.media.push(m1, m2);
+  const p1 = { id: store.nextId('placements'), clientId: c1.id, mediaId: m1.id, name: '首頁橫幅', active: true };
+  const p2 = { id: store.nextId('placements'), clientId: c1.id, mediaId: m2.id, name: '影片前貼片', active: true };
+  store.placements.push(p1, p2);
+
+  // 分潤比例（版本化，含生效日）：星光 55%→60%(2026-01-01)→70%(2026-06-01)
+  const mkRate = (clientId, pct, eff, reason, ver) => ({ id: store.nextId('shareRates'), clientId, rateBps: pct * 100, effectiveFrom: eff, reason, createdBy: 'U0001', createdAt: now, version: ver });
+  store.shareRates.push(
+    mkRate(c1.id, 55, '2025-08-01', '初始設定', 1),
+    mkRate(c1.id, 60, '2026-01-01', '年度合約更新', 2),
+    mkRate(c1.id, 70, '2026-06-01', '續約調升分潤', 3),
+    mkRate(c2.id, 65, '2026-05-01', '合約設定', 1),
+  );
+
+  return { c1, c2, m1, m2, p1, p2, tRev, tBuy };
+}
+
+/** 示範營運資料（僅整合站/Demo 用，透過 service 正規流程寫入；測試不使用，避免污染斷言） */
+function seedDemo(svc, ids) {
+  const a = svc.actorFromToken(svc.authenticate('sabrina@platform.com', 'demo1234').token);
+  const months = ['2025-08', '2025-09', '2025-10', '2025-11', '2025-12', '2026-01', '2026-02', '2026-03', '2026-04', '2026-05', '2026-06', '2026-07'];
+  const trend = [820, 910, 880, 1040, 1120, 980, 1180, 1240, 1360, 1180, 1305, 1284];
+  months.forEach((p, i) => {
+    svc.ingestManual(a, { clientId: ids.c1.id, rows: [{ period: p, media: '星光首頁', placement: '首頁橫幅', source: 'adsense', revenue: trend[i] * 1000, campaignType: 'revshare', impressions: trend[i] * 4000, clicks: trend[i] * 30 }] });
+  });
+  svc.ingestManual(a, { clientId: ids.c1.id, rows: [
+    { period: '2026-07', media: '星光影音', placement: '影片前貼片', source: 'meta', revenue: 318000, campaignType: 'revshare', impressions: 3150000, clicks: 21030 },
+    { period: '2026-07', media: '星光首頁', placement: '側欄', source: 'direct', revenue: 110500, campaignType: 'revshare' },
+  ] });
+  // 結算：最新月份（2026-07）保持未結算，其餘產生結算單
+  months.slice(0, -1).forEach((p) => svc.generateSettlement(a, { clientId: ids.c1.id, period: p }));
+  const list = svc.listSettlements(a, { clientId: ids.c1.id });
+  const pay = (period, date) => { const s = list.find((x) => x.period === period); if (s) { svc.publishSettlement(a, s.id); svc.markPaid(a, s.id, date); } };
+  pay('2026-05', '2026-06-05');
+  pay('2026-06', '2026-07-05');
+}
+
+
+/*
+ * 核心服務層。所有對外操作都需帶 actor（由 token 解出），並強制：
+ *  - RBAC 角色權限
+ *  - 資料範圍隔離（客戶帳號僅能存取自己 clientId）
+ *  - 分潤比例版本化 + 生效日解析
+ *  - 結算快照鎖定（已結算月份不因日後改比例而回溯變動）
+ */
+
+const LOCKED_STATUSES = ['issued', 'published', 'paid'];
+
+function createService(store, opts = {}) {
+  const SECRET = opts.secret || 'dev-secret-change-me';
+  const clock = opts.clock || (() => new Date());
+  const nowIso = () => clock().toISOString();
+  const nowSec = () => Math.floor(clock().getTime() / 1000);
+
+  // ---------- 內部小工具 ----------
+  const roleById = (id) => store.roles.find((r) => r.id === id);
+  const userByEmail = (e) => store.users.find((u) => u.email === String(e).toLowerCase());
+  const clientById = (id) => store.clients.find((c) => c.id === id);
+  const campaignByCode = (code) => store.campaignTypes.find((t) => t.code === code);
+  const campaignById = (id) => store.campaignTypes.find((t) => t.id === id);
+
+  function audit(actor, action, entity, entityId, detail) {
+    store.audit.push({ id: store.nextId('audit'), at: nowIso(), actorId: actor ? actor.userId : null, action, entity, entityId, detail: detail || null });
+  }
+  function notify(type, to, payload) {
+    if (store.settings.notify[type] === false) return null;
+    const n = { id: store.nextId('notifications'), at: nowIso(), type, to: to || null, payload: payload || {}, read: false };
+    store.notifications.push(n);
+    return n;
+  }
+
+  // ---------- 認證 ----------
+  function authenticate(email, password) {
+    const u = userByEmail(email);
+    if (!u || !auth.verifyPassword(password, u.passwordHash)) throw new AppError('BAD_CREDENTIALS', '帳號或密碼錯誤');
+    if (!u.active) throw new AppError('FORBIDDEN', '帳號已停用');
+    u.lastLogin = nowIso();
+    const role = roleById(u.roleId);
+    const token = auth.sign({ sub: u.id, role: role.code, roleId: u.roleId, clientId: u.clientId }, SECRET, 8 * 3600, nowSec());
+    return { token, user: publicUser(u) };
+  }
+  function actorFromToken(token) {
+    const body = auth.verify(token, SECRET, nowSec());
+    const role = roleById(body.roleId);
+    if (!role) throw new AppError('UNAUTHENTICATED', '角色不存在');
+    return { userId: body.sub, roleCode: role.code, roleId: role.id, clientId: body.clientId || null, perms: role.perms.slice() };
+  }
+  function requireActor(actor) {
+    if (!actor || !actor.userId) throw new AppError('UNAUTHENTICATED', '需要登入');
+    return actor;
+  }
+  function require(actor, perm) {
+    requireActor(actor);
+    if (!actor.perms.includes(perm)) throw new AppError('FORBIDDEN', `角色權限不足：需要 ${perm}`);
+    return actor;
+  }
+  function requireInternal(actor) {
+    requireActor(actor);
+    if (actor.clientId) throw new AppError('FORBIDDEN', '此操作僅限內部帳號');
+    return actor;
+  }
+  /** 資料範圍隔離：客戶帳號強制綁定自己的 clientId */
+  function scopeClient(actor, clientId) {
+    requireActor(actor);
+    if (actor.clientId) {
+      if (clientId && clientId !== actor.clientId) throw new AppError('TENANT_DENIED', '權限隔離：僅能存取自己的資料');
+      return actor.clientId;
+    }
+    if (!clientId) throw new AppError('NOT_FOUND', '缺少 clientId');
+    if (!clientById(clientId)) throw new AppError('NOT_FOUND', `查無客戶：${clientId}`);
+    return clientId;
+  }
+  function publicUser(u) {
+    const role = roleById(u.roleId);
+    return { id: u.id, email: u.email, name: u.name, role: role ? role.code : null, clientId: u.clientId, active: u.active, lastLogin: u.lastLogin };
+  }
+
+  // ---------- 分潤比例（版本化 + 生效日） ----------
+  function setShareRate(actor, { clientId, pct, effectiveFrom, reason }) {
+    require(actor, 'p_rate');
+    if (!clientById(clientId)) throw new AppError('NOT_FOUND', `查無客戶：${clientId}`);
+    if (!/^\d{4}-\d{2}-01$/.test(String(effectiveFrom))) throw new AppError('BAD_EFFECTIVE', '生效日須為每月 1 日（YYYY-MM-01）');
+    const bps = pctToBps(pct);
+    const ver = store.shareRates.filter((r) => r.clientId === clientId).reduce((m, r) => Math.max(m, r.version), 0) + 1;
+    const rate = { id: store.nextId('shareRates'), clientId, rateBps: bps, effectiveFrom, reason: reason || '', createdBy: actor.userId, createdAt: nowIso(), version: ver };
+    store.shareRates.push(rate);
+    audit(actor, 'set_share_rate', 'shareRate', rate.id, { clientId, pct, effectiveFrom });
+    // 注意：此處不觸碰任何既有 settlement；已結算月份為快照，永不回溯。
+    return { ...rate, pct: bpsToPct(rate.rateBps) };
+  }
+  function resolveRate(clientId, period) {
+    const start = periodStart(period);
+    const cands = store.shareRates
+      .filter((r) => r.clientId === clientId && r.effectiveFrom <= start)
+      .sort((a, b) => (a.effectiveFrom === b.effectiveFrom ? a.version - b.version : (a.effectiveFrom < b.effectiveFrom ? -1 : 1)));
+    if (cands.length === 0) throw new AppError('NO_RATE', '查無適用之分潤比例（請先設定生效比例）');
+    const r = cands[cands.length - 1];
+    return { rateBps: r.rateBps, rateId: r.id, version: r.version, pct: bpsToPct(r.rateBps) };
+  }
+  function listShareRates(actor, clientId) {
+    const cid = scopeClient(actor, clientId);
+    return store.shareRates.filter((r) => r.clientId === cid).map((r) => ({ ...r, pct: bpsToPct(r.rateBps) })).sort((a, b) => a.version - b.version);
+  }
+
+  // ---------- 客戶 / 媒體 / 版位 / 活動類型 設定 ----------
+  function listCampaignTypes(actor) { requireActor(actor); return store.campaignTypes.filter((t) => t.active).map((t) => ({ ...t })); }
+  function addCampaignType(actor, { code, name, fields }) {
+    require(actor, 'p_acct');
+    if (campaignByCode(code)) throw new AppError('CONFLICT', `活動類型代碼已存在：${code}`);
+    const t = { id: store.nextId('campaignTypes'), code, name, active: true, fields: Array.isArray(fields) ? fields : [] };
+    store.campaignTypes.push(t);
+    audit(actor, 'add_campaign_type', 'campaignType', t.id, { code, name });
+    return { ...t };
+  }
+  function addMedia(actor, { clientId, name }) {
+    const cid = scopeClient(actor, clientId);
+    let m = store.media.find((x) => x.clientId === cid && x.name === name);
+    if (!m) { m = { id: store.nextId('media'), clientId: cid, name, active: true }; store.media.push(m); audit(actor, 'add_media', 'media', m.id, { name }); }
+    return { ...m };
+  }
+  function addPlacement(actor, { clientId, mediaId, name }) {
+    const cid = scopeClient(actor, clientId);
+    const media = store.media.find((x) => x.id === mediaId && x.clientId === cid);
+    if (!media) throw new AppError('NOT_FOUND', `查無媒體或不屬於此客戶：${mediaId}`);
+    let p = store.placements.find((x) => x.clientId === cid && x.mediaId === mediaId && x.name === name);
+    if (!p) { p = { id: store.nextId('placements'), clientId: cid, mediaId, name, active: true }; store.placements.push(p); audit(actor, 'add_placement', 'placement', p.id, { name }); }
+    return { ...p };
+  }
+  function listClientConfig(actor, clientId) {
+    const cid = scopeClient(actor, clientId);
+    return {
+      media: store.media.filter((m) => m.clientId === cid),
+      placements: store.placements.filter((p) => p.clientId === cid),
+      campaignTypes: store.campaignTypes.filter((t) => t.active),
+    };
+  }
+
+  // ---------- 收入資料介接（人工上傳 + API 轉接） ----------
+  function naturalKey(x) { return [x.clientId, x.period, x.mediaId || '', x.placementId || '', x.source, x.campaignTypeId].join('|'); }
+  function upsertIncome(actor, rec) {
+    const key = naturalKey(rec);
+    const existing = store.incomes.find((i) => i.naturalKey === key);
+    if (existing) {
+      Object.assign(existing, rec, { naturalKey: key, updatedAt: nowIso() });
+      return { action: 'updated', id: existing.id };
+    }
+    const row = { id: store.nextId('incomes'), naturalKey: key, createdAt: nowIso(), ...rec };
+    store.incomes.push(row);
+    return { action: 'inserted', id: row.id };
+  }
+  /** 將一列原始資料正規化成 income 記錄（media/placement 若不存在則自動建立於該客戶下） */
+  function normalizeRow(actor, clientId, raw) {
+    const period = String(raw.period || '').trim();
+    if (!isPeriod(period)) throw new AppError('BAD_ROW', `期間格式錯誤：${raw.period}`);
+    const revenue = Number(raw.revenue);
+    if (!Number.isFinite(revenue) || revenue < 0) throw new AppError('BAD_ROW', `營收不合法：${raw.revenue}`);
+    const typeCode = String(raw.campaignType || raw.campaign_type || 'revshare').trim();
+    const type = campaignByCode(typeCode);
+    if (!type) throw new AppError('BAD_ROW', `查無廣告活動類型：${typeCode}`);
+    let mediaId = null, placementId = null;
+    if (raw.media) mediaId = addMedia(actor, { clientId, name: String(raw.media).trim() }).id;
+    if (raw.placement && mediaId) placementId = addPlacement(actor, { clientId, mediaId, name: String(raw.placement).trim() }).id;
+    // 依活動類型設定挑出額外欄位放入 attributes（彈性欄位機制）
+    const attributes = {};
+    for (const f of type.fields) if (raw[f.key] !== undefined && raw[f.key] !== '') attributes[f.key] = raw[f.key];
+    return {
+      clientId, period, date: raw.date || null, mediaId, placementId,
+      campaignTypeId: type.id, source: String(raw.source || 'manual').trim(),
+      revenue: Math.round(revenue), currency: String(raw.currency || store.settings.baseCurrency).trim().toUpperCase(),
+      impressions: raw.impressions !== undefined && raw.impressions !== '' ? Number(raw.impressions) : null,
+      clicks: raw.clicks !== undefined && raw.clicks !== '' ? Number(raw.clicks) : null,
+      attributes,
+    };
+  }
+  function ingestManual(actor, { clientId, rows, csv }) {
+    require(actor, 'p_acct');
+    if (!clientById(clientId)) throw new AppError('NOT_FOUND', `查無客戶：${clientId}`);
+    const list = csv ? parseCSV(csv) : (rows || []);
+    const result = { inserted: 0, updated: 0, errors: [] };
+    list.forEach((raw, idx) => {
+      try {
+        // 若該期間已結算鎖定，禁止再匯入影響（維持帳務一致）
+        assertPeriodUnlocked(clientId, String(raw.period || '').trim());
+        const rec = normalizeRow(actor, clientId, raw);
+        const r = upsertIncome(actor, rec);
+        result[r.action]++;
+      } catch (e) { result.errors.push({ row: idx + 1, code: e.code || 'ERR', message: e.message }); }
+    });
+    audit(actor, 'ingest_manual', 'income', clientId, { count: list.length, ...result });
+    return result;
+  }
+  /** API 轉接：fieldMap 將外部欄位名對應到本系統標準欄位；模擬同步失敗會發通知 */
+  function ingestApi(actor, { clientId, source, records, fieldMap, fail }) {
+    require(actor, 'p_acct');
+    if (!clientById(clientId)) throw new AppError('NOT_FOUND', `查無客戶：${clientId}`);
+    if (fail) {
+      const n = notify('api_sync_failed', null, { source, clientId, message: fail });
+      audit(actor, 'ingest_api_failed', 'income', clientId, { source, message: fail });
+      return { ok: false, notified: !!n, error: fail };
+    }
+    const map = fieldMap || {};
+    const applied = (records || []).map((r) => {
+      const o = { source };
+      for (const [dst, src] of Object.entries(map)) o[dst] = r[src];
+      // 未在 map 的標準欄位若外部同名亦帶入
+      for (const k of ['period', 'media', 'placement', 'revenue', 'currency', 'campaignType', 'impressions', 'clicks', 'date']) if (o[k] === undefined && r[k] !== undefined) o[k] = r[k];
+      return o;
+    });
+    const res = ingestManual(actor, { clientId, rows: applied });
+    audit(actor, 'ingest_api', 'income', clientId, { source, ...res });
+    return { ok: true, ...res };
+  }
+  function listIncomes(actor, { clientId, period, campaignTypeCode } = {}) {
+    const cid = scopeClient(actor, clientId);
+    let rows = store.incomes.filter((i) => i.clientId === cid);
+    if (period) rows = rows.filter((i) => i.period === period);
+    if (campaignTypeCode) { const t = campaignByCode(campaignTypeCode); rows = rows.filter((i) => t && i.campaignTypeId === t.id); }
+    return rows.map((i) => ({ ...i }));
+  }
+
+  // ---------- 結算 / 撥款（快照鎖定） ----------
+  function findSettlement(clientId, period) { return store.settlements.find((s) => s.clientId === clientId && s.period === period); }
+  function isLocked(s) { return s && LOCKED_STATUSES.includes(s.status); }
+  function assertPeriodUnlocked(clientId, period) {
+    const s = findSettlement(clientId, period);
+    if (isLocked(s)) throw new AppError('LOCKED', `該期間 ${period} 已結算並鎖定，不可再變更來源資料`);
+  }
+  function buildLines(clientId, period) {
+    const incomes = store.incomes.filter((i) => i.clientId === clientId && i.period === period);
+    const { rateBps, rateId, version } = resolveRate(clientId, period);
+    const base = store.settings.baseCurrency;
+    let totalRevenue = 0, totalShare = 0;
+    const lines = incomes.map((i) => {
+      const revBase = fxConvert(i.revenue, i.currency, base, store.settings.fxRates, base);
+      const share = calcShare(revBase, rateBps);
+      totalRevenue += revBase; totalShare += share;
+      return { incomeId: i.id, revenue: revBase, currency: base, rateBps, share, campaignTypeId: i.campaignTypeId };
+    });
+    return { lines, totalRevenue, totalShare, rateBps, rateId, rateVersion: version, base };
+  }
+  function generateSettlement(actor, { clientId, period }) {
+    require(actor, 'p_pay');
+    const cid = scopeClient(actor, clientId);
+    if (!isPeriod(period)) throw new AppError('INVALID_PERIOD', `期間格式錯誤：${period}`);
+    const existing = findSettlement(cid, period);
+    if (existing) return { ...existing, reused: true }; // 已存在即鎖定快照，不重算、不重複
+    const b = buildLines(cid, period);
+    const s = {
+      id: store.nextId('settlements'), clientId: cid, period, status: 'issued',
+      lines: b.lines, totalRevenue: b.totalRevenue, totalShare: b.totalShare,
+      rateBpsSnapshot: b.rateBps, rateVersionUsed: b.rateVersion, currency: b.base,
+      snapshotVersion: 1, generatedAt: nowIso(), generatedBy: actor.userId,
+      publishedAt: null, paidAt: null, payDate: null, note: null,
+    };
+    store.settlements.push(s);
+    audit(actor, 'generate_settlement', 'settlement', s.id, { clientId: cid, period, totalShare: s.totalShare, rateBps: s.rateBpsSnapshot });
+    return { ...s, reused: false };
+  }
+  function publishSettlement(actor, settlementId) {
+    require(actor, 'p_pay');
+    const s = store.settlements.find((x) => x.id === settlementId);
+    if (!s) throw new AppError('NOT_FOUND', `查無結算單：${settlementId}`);
+    if (s.status === 'issued') { s.status = 'published'; s.publishedAt = nowIso(); }
+    notify('settlement_done', s.clientId, { settlementId: s.id, period: s.period, totalShare: s.totalShare });
+    audit(actor, 'publish_settlement', 'settlement', s.id, { period: s.period });
+    return { ...s };
+  }
+  function markPaid(actor, settlementId, payDate) {
+    require(actor, 'p_pay');
+    const s = store.settlements.find((x) => x.id === settlementId);
+    if (!s) throw new AppError('NOT_FOUND', `查無結算單：${settlementId}`);
+    s.status = 'paid'; s.paidAt = nowIso(); s.payDate = payDate || nowIso().slice(0, 10);
+    audit(actor, 'mark_paid', 'settlement', s.id, { payDate: s.payDate });
+    return { ...s };
+  }
+  /** 每月刷新：只為「有收入但尚未結算」的期間產生結算單，絕不動既有鎖定資料 */
+  function refreshSettlements(actor, clientId) {
+    require(actor, 'p_pay');
+    const cid = scopeClient(actor, clientId);
+    const periods = [...new Set(store.incomes.filter((i) => i.clientId === cid).map((i) => i.period))].sort();
+    const created = [];
+    for (const p of periods) if (!findSettlement(cid, p)) created.push(generateSettlement(actor, { clientId: cid, period: p }));
+    return created;
+  }
+  /** 管理員手動重算（唯一會覆寫已結算快照的入口，需 p_rate + p_pay，且已撥款者需 force） */
+  function recomputeSettlement(actor, settlementId, { force } = {}) {
+    require(actor, 'p_pay'); require(actor, 'p_rate');
+    const s = store.settlements.find((x) => x.id === settlementId);
+    if (!s) throw new AppError('NOT_FOUND', `查無結算單：${settlementId}`);
+    if (s.status === 'paid' && !force) throw new AppError('LOCKED', '已撥款之結算單需 force 才能重算');
+    const prev = { totalRevenue: s.totalRevenue, totalShare: s.totalShare, rateBpsSnapshot: s.rateBpsSnapshot, snapshotVersion: s.snapshotVersion, lines: s.lines };
+    const b = buildLines(s.clientId, s.period);
+    s.lines = b.lines; s.totalRevenue = b.totalRevenue; s.totalShare = b.totalShare;
+    s.rateBpsSnapshot = b.rateBps; s.rateVersionUsed = b.rateVersion; s.snapshotVersion++;
+    audit(actor, 'recompute_settlement', 'settlement', s.id, { from: prev, to: { totalShare: s.totalShare, rateBps: s.rateBpsSnapshot }, force: !!force });
+    return { ...s };
+  }
+  function listSettlements(actor, { clientId } = {}) {
+    const cid = scopeClient(actor, clientId);
+    return store.settlements.filter((s) => s.clientId === cid).map((s) => ({ ...s })).sort((a, b) => (a.period < b.period ? 1 : -1));
+  }
+
+  // ---------- 報表 / 匯出 / 趨勢 ----------
+  /** 明細報表：依廣告活動類型決定顯示欄位（彈性欄位）；分潤金額以「已結算用快照、未結算用現行比例」呈現 */
+  function report(actor, { clientId, period, campaignTypeCode } = {}) {
+    require(actor, 'p_view');
+    const cid = scopeClient(actor, clientId);
+    const type = campaignTypeCode ? campaignByCode(campaignTypeCode) : null;
+    const settlement = period ? findSettlement(cid, period) : null;
+    const snapShare = new Map();
+    if (settlement) for (const l of settlement.lines) snapShare.set(l.incomeId, l.share);
+
+    let incomes = store.incomes.filter((i) => i.clientId === cid);
+    if (period) incomes = incomes.filter((i) => i.period === period);
+    if (type) incomes = incomes.filter((i) => i.campaignTypeId === type.id);
+
+    const baseCols = [
+      { key: 'period', label: '期間' }, { key: 'media', label: '媒體' }, { key: 'placement', label: '版位' },
+      { key: 'campaignType', label: '廣告模式' }, { key: 'source', label: '來源' },
+      { key: 'revenue', label: '營收' }, { key: 'ratePct', label: '比例' }, { key: 'share', label: '分潤金額' },
+    ];
+    // 彈性欄位：若指定了活動類型，附加該類型設定要顯示的欄位
+    const dynCols = type ? type.fields.filter((f) => f.show).map((f) => ({ key: f.key, label: f.label })) : [];
+    const columns = [...baseCols, ...dynCols];
+
+    const rows = incomes.map((i) => {
+      const t = campaignById(i.campaignTypeId);
+      let share, ratePct;
+      if (snapShare.has(i.id)) { share = snapShare.get(i.id); ratePct = bpsToPct(settlement.rateBpsSnapshot); }
+      else { const rr = resolveRate(cid, i.period); share = calcShare(fxConvert(i.revenue, i.currency, store.settings.baseCurrency, store.settings.fxRates, store.settings.baseCurrency), rr.rateBps); ratePct = rr.pct; }
+      const media = store.media.find((m) => m.id === i.mediaId);
+      const placement = store.placements.find((p) => p.id === i.placementId);
+      const base = {
+        period: i.period, media: media ? media.name : '', placement: placement ? placement.name : '',
+        campaignType: t ? t.name : '', source: i.source, revenue: i.revenue, ratePct, share,
+        impressions: i.impressions, clicks: i.clicks,
+      };
+      for (const c of dynCols) base[c.key] = i.attributes[c.key] !== undefined ? i.attributes[c.key] : '';
+      return base;
+    });
+    return { columns, rows, locked: isLocked(settlement) };
+  }
+  function exportReportCSV(actor, params) {
+    require(actor, 'p_export');
+    const { columns, rows } = report(actor, params);
+    return toCSV(columns, rows);
+  }
+  /** 趨勢：近 n 個月營收/分潤（已結算用快照、未結算用現行比例） */
+  function trend(actor, { clientId, months } = {}) {
+    require(actor, 'p_view');
+    const cid = scopeClient(actor, clientId);
+    const all = [...new Set(store.incomes.filter((i) => i.clientId === cid).map((i) => i.period))].sort();
+    const take = months ? all.slice(-months) : all;
+    return take.map((p) => {
+      const s = findSettlement(cid, p);
+      if (isLocked(s)) return { period: p, revenue: s.totalRevenue, share: s.totalShare };
+      const b = buildLines(cid, p);
+      return { period: p, revenue: b.totalRevenue, share: b.totalShare };
+    });
+  }
+
+  // ---------- 帳號 / 角色權限 ----------
+  function listUsers(actor) { require(actor, 'p_acct'); return store.users.map(publicUser); }
+  function createUser(actor, { email, name, roleCode, clientId, password }) {
+    require(actor, 'p_acct');
+    email = String(email).toLowerCase();
+    if (userByEmail(email)) throw new AppError('CONFLICT', `Email 已存在：${email}`);
+    const role = store.roles.find((r) => r.code === roleCode);
+    if (!role) throw new AppError('NOT_FOUND', `查無角色：${roleCode}`);
+    if (role.code === 'client' && !clientById(clientId)) throw new AppError('NOT_FOUND', '客戶帳號需綁定有效 clientId');
+    const u = { id: store.nextId('users'), email, name, passwordHash: auth.hashPassword(password || Math.random().toString(36).slice(2)), roleId: role.id, clientId: role.code === 'client' ? clientId : null, active: true, createdAt: nowIso(), lastLogin: null };
+    store.users.push(u);
+    const setupToken = auth.sign({ sub: u.id, purpose: 'activate' }, SECRET, 72 * 3600, nowSec());
+    notify('account_activation', u.clientId, { userId: u.id, email, setupToken });
+    audit(actor, 'create_user', 'user', u.id, { email, roleCode });
+    return { user: publicUser(u), setupToken };
+  }
+  function setUserActive(actor, userId, active) {
+    require(actor, 'p_acct');
+    const u = store.users.find((x) => x.id === userId);
+    if (!u) throw new AppError('NOT_FOUND', `查無使用者：${userId}`);
+    u.active = !!active; audit(actor, 'set_user_active', 'user', u.id, { active: u.active });
+    return publicUser(u);
+  }
+  function updateRolePerms(actor, roleCode, perms) {
+    require(actor, 'p_acct');
+    const role = store.roles.find((r) => r.code === roleCode);
+    if (!role) throw new AppError('NOT_FOUND', `查無角色：${roleCode}`);
+    if (role.code === 'admin') throw new AppError('FORBIDDEN', '管理員角色權限不可移除');
+    role.perms = perms.slice(); audit(actor, 'update_role_perms', 'role', role.id, { perms });
+    return { code: role.code, perms: role.perms };
+  }
+  function requestPasswordReset(email) {
+    const u = userByEmail(email);
+    // 不論帳號是否存在都回一致結果（避免帳號列舉），但僅存在時發通知
+    if (u) notify('password_reset', u.clientId, { userId: u.id, email: u.email, token: auth.sign({ sub: u.id, purpose: 'reset' }, SECRET, 3600, nowSec()) });
+    return { ok: true };
+  }
+
+  // ---------- 設定 / 匯率 / 通知 ----------
+  function listClients(actor) { requireInternal(actor); return store.clients.map((c) => ({ ...c })); }
+  function getSettings(actor) { requireActor(actor); return { ...store.settings }; }
+  function setLocale(actor, locale) { requireActor(actor); store.settings.locale = locale; return { locale }; }
+  function setFxRate(actor, currency, rate) { require(actor, 'p_acct'); store.settings.fxRates[currency] = rate; audit(actor, 'set_fx', 'settings', currency, { rate }); return { ...store.settings.fxRates }; }
+  function listNotifications(actor) { require(actor, 'p_acct'); return store.notifications.map((n) => ({ ...n })); }
+
+  return {
+    // auth
+    authenticate, actorFromToken,
+    // rate
+    setShareRate, resolveRate, listShareRates,
+    // config
+    listCampaignTypes, addCampaignType, addMedia, addPlacement, listClientConfig,
+    // ingest
+    ingestManual, ingestApi, listIncomes,
+    // settlement
+    generateSettlement, publishSettlement, markPaid, refreshSettlements, recomputeSettlement, listSettlements, findSettlement,
+    // report
+    report, exportReportCSV, trend,
+    // accounts
+    listUsers, createUser, setUserActive, updateRolePerms, requestPasswordReset,
+    // settings
+    listClients, getSettings, setLocale, setFxRate, listNotifications,
+    // helpers exposed for tests/ops
+    _store: store,
+  };
+}
+
+
+/*
+ * HTTP API 層：將 service 方法對外為 REST 端點。
+ * 認證以 Authorization: Bearer <token>；錯誤以 AppError.status 對應 HTTP 狀態碼。
+ * 前端（Cloudflare Pages / 現有 Demo）以 fetch 呼叫本 API；正式環境等同 Supabase Edge Functions。
+ */
+
+function buildHandler(svc) {
+  function actorOf(req) {
+    const h = req.headers['authorization'] || '';
+    const m = /^Bearer\s+(.+)$/.exec(h);
+    if (!m) return null;
+    return svc.actorFromToken(m[1]);
+  }
+  const routes = [];
+  const add = (method, re, fn) => routes.push({ method, re, fn });
+
+  // ---- 認證 ----
+  add('POST', /^\/auth\/login$/, (req, res, body) => svc.authenticate(body.email, body.password));
+  add('POST', /^\/auth\/forgot$/, (req, res, body) => svc.requestPasswordReset(body.email));
+
+  // ---- 設定 / 我 ----
+  add('GET', /^\/clients$/, (req) => svc.listClients(actorOf(req)));
+  add('GET', /^\/settings$/, (req) => svc.getSettings(actorOf(req)));
+  add('POST', /^\/settings\/locale$/, (req, r, b) => svc.setLocale(actorOf(req), b.locale));
+  add('POST', /^\/settings\/fx$/, (req, r, b) => svc.setFxRate(actorOf(req), b.currency, b.rate));
+
+  // ---- 設定資料 ----
+  add('GET', /^\/config$/, (req, r, b, q) => svc.listClientConfig(actorOf(req), q.clientId));
+  add('GET', /^\/campaign-types$/, (req) => svc.listCampaignTypes(actorOf(req)));
+  add('POST', /^\/campaign-types$/, (req, r, b) => svc.addCampaignType(actorOf(req), b));
+  add('POST', /^\/media$/, (req, r, b) => svc.addMedia(actorOf(req), b));
+  add('POST', /^\/placements$/, (req, r, b) => svc.addPlacement(actorOf(req), b));
+
+  // ---- 分潤比例 ----
+  add('GET', /^\/rates$/, (req, r, b, q) => svc.listShareRates(actorOf(req), q.clientId));
+  add('POST', /^\/rates$/, (req, r, b) => svc.setShareRate(actorOf(req), b));
+
+  // ---- 收入介接 ----
+  add('POST', /^\/ingest\/manual$/, (req, r, b) => svc.ingestManual(actorOf(req), b));
+  add('POST', /^\/ingest\/api$/, (req, r, b) => svc.ingestApi(actorOf(req), b));
+  add('GET', /^\/incomes$/, (req, r, b, q) => svc.listIncomes(actorOf(req), q));
+
+  // ---- 報表 ----
+  add('GET', /^\/report$/, (req, r, b, q) => svc.report(actorOf(req), q));
+  add('GET', /^\/report\/export$/, (req, res, b, q) => {
+    const csv = svc.exportReportCSV(actorOf(req), q);
+    res.writeHead(200, { 'Content-Type': 'text/csv; charset=utf-8', 'Content-Disposition': 'attachment; filename="report.csv"' });
+    res.end(csv); return undefined; // 已自行回應
+  });
+  add('GET', /^\/trend$/, (req, r, b, q) => svc.trend(actorOf(req), { clientId: q.clientId, months: q.months ? Number(q.months) : undefined }));
+
+  // ---- 結算 / 撥款 ----
+  add('GET', /^\/settlements$/, (req, r, b, q) => svc.listSettlements(actorOf(req), q));
+  add('POST', /^\/settlements\/generate$/, (req, r, b) => svc.generateSettlement(actorOf(req), b));
+  add('POST', /^\/settlements\/refresh$/, (req, r, b) => svc.refreshSettlements(actorOf(req), b.clientId));
+  add('POST', /^\/settlements\/([^/]+)\/publish$/, (req, r, b, q, m) => svc.publishSettlement(actorOf(req), m[1]));
+  add('POST', /^\/settlements\/([^/]+)\/pay$/, (req, r, b, q, m) => svc.markPaid(actorOf(req), m[1], b.payDate));
+  add('POST', /^\/settlements\/([^/]+)\/recompute$/, (req, r, b, q, m) => svc.recomputeSettlement(actorOf(req), m[1], b));
+
+  // ---- 帳號 / 角色 ----
+  add('GET', /^\/users$/, (req) => svc.listUsers(actorOf(req)));
+  add('POST', /^\/users$/, (req, r, b) => svc.createUser(actorOf(req), b));
+  add('POST', /^\/users\/([^/]+)\/active$/, (req, r, b, q, m) => svc.setUserActive(actorOf(req), m[1], b.active));
+  add('POST', /^\/roles\/([^/]+)\/perms$/, (req, r, b, q, m) => svc.updateRolePerms(actorOf(req), m[1], b.perms));
+  add('GET', /^\/notifications$/, (req) => svc.listNotifications(actorOf(req)));
+
+  const handler = (req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Headers', 'authorization,content-type');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+    if (req.method === 'OPTIONS') { res.writeHead(204); return res.end(); }
+    const url = new URL(req.url, 'http://x');
+    const q = Object.fromEntries(url.searchParams.entries());
+    let raw = '';
+    req.on('data', (c) => { raw += c; if (raw.length > 5e6) req.destroy(); });
+    req.on('end', () => {
+      let body = {};
+      if (raw) { try { body = JSON.parse(raw); } catch { return send(res, 400, { error: { code: 'BAD_JSON', message: 'JSON 格式錯誤' } }); } }
+      const route = routes.find((r) => r.method === req.method && r.re.test(url.pathname));
+      if (!route) return send(res, 404, { error: { code: 'NOT_FOUND', message: '端點不存在' } });
+      const m = url.pathname.match(route.re);
+      try {
+        const out = route.fn(req, res, body, q, m);
+        if (out === undefined && res.writableEnded) return; // 端點已自行回應（如 CSV）
+        send(res, 200, { data: out });
+      } catch (e) {
+        const status = e instanceof AppError ? e.status : 500;
+        send(res, status, { error: { code: e.code || 'ERROR', message: e.message } });
+      }
+    });
+  };
+  return handler;
+}
+
+function send(res, status, obj) {
+  const s = JSON.stringify(obj);
+  res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8' });
+  res.end(s);
+}
+
+
+// ---- 內建服務實例 + 示範資料 ----
+const __store = createStore();
+const __ids = seed(__store);
+const __svc = createService(__store, { secret: 'demo' });
+seedDemo(__svc, __ids);
+const __handler = buildHandler(__svc);
+
+// ---- 攔截 fetch('/api/..') 路由到內建 handler（其餘走原生 fetch）----
+const __realFetch = window.fetch ? window.fetch.bind(window) : null;
+window.fetch = function (url, opts = {}) {
+  if (typeof url === 'string' && (url === '/api' || url.startsWith('/api/'))) {
+    return new Promise((resolve) => {
+      const u = url.slice(4) || '/';
+      const headers = {}; for (const [k, v] of Object.entries(opts.headers || {})) headers[k.toLowerCase()] = v;
+      const bodyStr = opts.body || '';
+      const req = { url: u, method: opts.method || 'GET', headers,
+        on(ev, cb) { if (ev === 'data') { if (bodyStr) cb(bodyStr); } else if (ev === 'end') { cb(); } }, destroy() {} };
+      let status = 200, payload = '', hdrs = {}, ended = false;
+      const res = { setHeader(k, v) { hdrs[k] = v; }, writeHead(s, h) { status = s; Object.assign(hdrs, h || {}); },
+        end(p) { if (ended) return; ended = true; payload = p || ''; resolve(new Response(payload, { status, headers: hdrs })); },
+        get writableEnded() { return ended; } };
+      try { __handler(req, res); } catch (e) { resolve(new Response(JSON.stringify({ error: { code: e.code || 'ERR', message: e.message } }), { status: e.status || 500 })); }
+    });
+  }
+  return __realFetch ? __realFetch(url, opts) : Promise.reject(new Error('fetch unavailable'));
+};
+
+})();</script>
+</body>
+</html>
