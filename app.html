@@ -252,6 +252,17 @@ tbody tr:hover td:first-child{box-shadow:inset 3px 0 0 var(--cobalt)}
   .main{margin-left:72px}.g4{grid-template-columns:repeat(2,1fr)}.g2,.g3{grid-template-columns:1fr}
   .lcard{flex-direction:column;height:auto}.lcard .left{display:none}.lcard .right{width:100%}.crumb{display:none}
 }
+@media(max-width:640px){
+  .content{padding:16px}
+  .stat{padding:16px 18px}
+  .stat .val{font-size:23px;letter-spacing:-.6px}
+  .stat .val small{font-size:12px;margin-right:2px}
+  .pagehd h1{font-size:22px}
+  .grid{gap:14px}
+  .hdr{padding:0 14px;gap:8px}#csel{max-width:130px}
+  .phd{gap:8px}
+}
+@media(max-width:430px){ .g4{grid-template-columns:1fr} }
 @media(prefers-reduced-motion:reduce){*{animation-duration:.001s!important;transition-duration:.001s!important}.tk-row{animation:none}}
 </style>
 </head>
